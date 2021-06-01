@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
+    <color name="primary_color">#232121</color>
+    <color name="secondary_color">#232121</color>
+    <color name="primary_darker">#232121</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <color name="search_icon_color">#f0131e</color>
+    <color name="home_toolbar_background_color">#1b1b1b</color>
+    <color name="home_screen_background_color">#151515</color>
+    <color name="home_app_logo_color">#fe0004</color>
+    <color name="search_cancel_color">#ff898e</color>
+    <color name="search_bar_background_color">#232121</color>
+    <color name="search_edittext_background_color">#2d2d2d</color>
+    <color name="search_edittext_icon_color">#ffffff</color>
+    <color name="search_edittext_cursor_color">#eb131e</color>
+    <color name="search_edittext_hint_color">#e6eaf3</color>
+    <color name="search_result_highlight_color">#8e2025</color>
+    <color name="search_result_title_color">#e6eaf3</color>
+    <color name="search_result_item_background_color">#2d2d2d</color>
+    <color name="details_back_background_color">#284c64</color>
+    <color name="details_back_icon_color">#ffffff</color>
+    <color name="details_screen_background_color">#13202c</color>
+    <color name="details_item_title_color">#ff898e</color>
+    <color name="details_item_details_color">#f4f4f5</color>
+    <color name="details_recycler_item_title_color">#141e28</color>
+    <color name="details_character_name_color">#ffffff</color>
 </resources>
