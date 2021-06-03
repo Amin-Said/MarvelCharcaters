@@ -15,8 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.adapter.CharactersRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentHomeListBinding
-import com.amin.marvelcharcaters.model.CharacterResponse
-import com.amin.marvelcharcaters.model.CharacterResult
+import com.amin.marvelcharcaters.model.*
 import com.amin.marvelcharcaters.utils.readFile
 import com.amin.taskdemo.SearchRecyclerAdapter
 import com.squareup.moshi.JsonAdapter
@@ -33,6 +32,8 @@ class HomeListFragment : Fragment() ,
     lateinit var mAdapter: CharactersRecyclerAdapter
     lateinit var mSearchAdapter: SearchRecyclerAdapter
 
+    var isSearchOpened = false
+
 
     fun getOfflineData(): CharacterResponse? {
         val charactersJsonResponseToString = requireActivity().assets.readFile("ch0.json")
@@ -47,6 +48,9 @@ class HomeListFragment : Fragment() ,
         System.out.println("DEBUG : moshi : $response")
         return response
     }
+
+
+
 
     var isLoading = false
     val isLastPage = false
@@ -71,8 +75,6 @@ class HomeListFragment : Fragment() ,
 
             if (isAtLastItem) {
                 getOfflineData()?.data?.results?.let { mAdapter.addToCurrentList(it) }
-//                viewModel.fetchingData(Config.Value_AppID, page.toString())
-//                observeLiveData()
                 isScrolling = false
             }
             else {
@@ -128,6 +130,7 @@ class HomeListFragment : Fragment() ,
 
     private fun changeToolbarOnStartSearch() {
 
+        isSearchOpened = true
         searchEditText.isCursorVisible = false
         binding.cancelBtn.visibility = View.VISIBLE
         binding.searchView.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
@@ -135,6 +138,7 @@ class HomeListFragment : Fragment() ,
     }
 
     private fun changeToolbarOnCancelSearch() {
+        isSearchOpened = false
         binding.cancelBtn.visibility = View.GONE
         binding.searchView.setQuery("", false)
         binding.searchView.setIconified(true)
@@ -165,7 +169,6 @@ class HomeListFragment : Fragment() ,
 
             override fun onQueryTextChange(newText: String): Boolean {
                 searchEditText.isCursorVisible = newText.isNotEmpty()
-                // binding.blurBehindToolbarLayout.viewBehind = binding.mainListLayout
 
                 if (newText.trim().isNotEmpty()) {
 
@@ -181,8 +184,6 @@ class HomeListFragment : Fragment() ,
                     binding.blurBehindLayout.viewBehind = null
 
                 }
-
-
 
                 return false
             }
@@ -212,6 +213,7 @@ class HomeListFragment : Fragment() ,
     }
 
     override fun onCharacterItemSelected(position: Int, item: CharacterResult) {
+        if (isSearchOpened) changeToolbarOnCancelSearch()
         val action = HomeListFragmentDirections.actionGoToDetails(item)
         findNavController().navigate(action)
     }

@@ -9,7 +9,7 @@ data class EventsResponse(
     val attributionText: String,
     val code: Int,
     val copyright: String,
-    val `data`: EventsData,
+    val `data`: DetailsData,
     val etag: String,
     val status: String
 ): Parcelable
@@ -41,7 +41,7 @@ data class EventsData(
     val count: Int,
     val limit: Int,
     val offset: Int,
-    val results: List<EventsResult>,
+    val results: List<BaseResult>,
     val total: Int
 ): Parcelable
 

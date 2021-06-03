@@ -9,7 +9,7 @@ data class SeriesResponse(
     val attributionText: String,
     val code: Int,
     val copyright: String,
-    val `data`: SeriesData,
+    val `data`: DetailsData,
     val etag: String,
     val status: String
 ): Parcelable
@@ -19,7 +19,7 @@ data class SeriesData(
     val count: Int,
     val limit: Int,
     val offset: Int,
-    val results: List<SeriesResult>,
+    val results: List<BaseResult>,
     val total: Int
 ): Parcelable
 

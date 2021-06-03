@@ -7,7 +7,6 @@
     android:layout_margin="@dimen/card_view_margin"
     android:innerRadius="0dp"
     android:shape="ring"
-
     app:cardCornerRadius="@dimen/card_character_corner_radius"
   >
 

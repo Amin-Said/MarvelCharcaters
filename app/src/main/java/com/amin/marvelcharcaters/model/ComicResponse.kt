@@ -9,7 +9,7 @@ data class ComicResponse(
     val attributionText: String,
     val code: Int,
     val copyright: String,
-    val `data`: ComicData,
+    val `data`: DetailsData,
     val etag: String,
     val status: String
 ): Parcelable
@@ -33,7 +33,16 @@ data class ComicData(
     val count: Int,
     val limit: Int,
     val offset: Int,
-    val results: List<ComicResult>,
+    val results: List<BaseResult>,
+    val total: Int
+): Parcelable
+
+@Parcelize
+data class DetailsData(
+    val count: Int,
+    val limit: Int,
+    val offset: Int,
+    val results: List<BaseResult>,
     val total: Int
 ): Parcelable
 
@@ -112,6 +121,48 @@ data class ComicResult(
     val urls: List<Url>,
     val variantDescription: String,
     val variants: List<String>
+): Parcelable
+
+@Parcelize
+data class BaseResult(
+    val name: String?,
+    val characters: Comics?,
+    val collectedIssues: List<String>?,
+    val collections: List<String>?,
+    val comics: Comics?,
+    val end: String?,
+    val creators: Creators?,
+    val dates: List<Date>?,
+    val description: String?,
+    val diamondCode: String?,
+    val digitalId: Int?,
+    val ean: String?,
+    val events: Events?,
+    val format: String?,
+    val id: Int?,
+    val next: Next?,
+    val previous: Previous?,
+    val start: String?,
+    val images: List<Image>?,
+    val isbn: String?,
+    val issn: String?,
+    val issueNumber: Int?,
+    val modified: String?,
+    val pageCount: Int?,
+    val prices: List<Price>?,
+    val resourceURI: String?,
+    val stories: Stories?,
+    val textObjects: List<TextObject>?,
+    val thumbnail: Thumbnail?,
+    val title: String?,
+    val upc: String?,
+    val urls: List<Url>?,
+    val variantDescription: String?,
+    val variants: List<String>?,
+    val endYear: Int?,
+    val rating: String?,
+    val startYear: Int?,
+    val originalIssue: OriginalIssue?
 ): Parcelable
 
 //data class ComicSeries(

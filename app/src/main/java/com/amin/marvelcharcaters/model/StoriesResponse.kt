@@ -9,7 +9,7 @@ data class StoriesResponse(
     val attributionText: String,
     val code: Int,
     val copyright: String,
-    val `data`: StoriesData,
+    val `data`: DetailsData,
     val etag: String,
     val status: String
 ): Parcelable
@@ -26,7 +26,7 @@ data class StoriesResult(
     val originalIssue: OriginalIssue,
     val resourceURI: String,
     val series: Series,
-    val thumbnail: String,
+    val thumbnail: Thumbnail,
     val title: String,
     val type: String
 ): Parcelable
@@ -36,7 +36,7 @@ data class StoriesData(
     val count: Int,
     val limit: Int,
     val offset: Int,
-    val results: List<StoriesResult>,
+    val results: List<BaseResult>,
     val total: Int
 ): Parcelable
 

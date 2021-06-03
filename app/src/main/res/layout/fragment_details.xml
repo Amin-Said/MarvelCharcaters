@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
     android:fitsSystemWindows="true"
+    android:visibility="visible"
     tools:context=".ui.DetailsFragment"
-    tools:ignore="MotionLayoutInvalidSceneFileReference"
     tools:showPaths="true">
+
 
     <ImageView
         android:id="@+id/characterImage"
@@ -28,8 +29,8 @@
         android:layout_marginTop="@dimen/space_from_top_details_title"
         android:layout_marginEnd="@dimen/space_from_borders"
         android:textColor="@color/details_character_name_color"
-        android:textStyle="bold"
         android:textSize="@dimen/details_title_font_size"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/characterImage" />
@@ -41,6 +42,7 @@
         android:layout_marginStart="@dimen/space_from_borders"
         android:layout_marginTop="@dimen/space_from_borders"
         android:layout_marginEnd="@dimen/space_from_borders"
+        android:text="@string/description_not_available"
         android:textColor="@color/details_item_details_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,6 +56,7 @@
         android:layout_marginTop="@dimen/space_from_top_description_title"
         android:layout_marginEnd="@dimen/space_from_borders"
         android:text="@string/description_title"
+        android:textSize="@dimen/content_details_title_font_size"
         android:textColor="@color/details_item_title_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,18 +87,29 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/backIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/space_from_borders"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_search_focused" />
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/backContainer"
+        app:layout_constraintEnd_toEndOf="@+id/backContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/backContainer"
+        tools:srcCompat="@drawable/ic_back" />
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 
