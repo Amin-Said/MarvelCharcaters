@@ -1,7 +1,10 @@
 package com.amin.marvelcharcaters.utils.extensions
 
 import android.content.res.AssetManager
+import androidx.appcompat.widget.SearchView
 import com.amin.marvelcharcaters.model.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 fun AssetManager.readFile(fileName: String) = open(fileName)
     .bufferedReader()
@@ -26,4 +29,23 @@ fun SeriesResult.getImage(path:String,extension: String):String{
 
 fun EventsResult.getImage(path:String,extension: String):String{
     return "https"+path.substring(4)+"."+extension
+}
+
+fun SearchView.getQueryTextChangeStateFlow(): StateFlow<String> {
+
+    val query = MutableStateFlow("")
+
+    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        override fun onQueryTextSubmit(query: String?): Boolean {
+            return true
+        }
+
+        override fun onQueryTextChange(newText: String): Boolean {
+            query.value = newText
+            return true
+        }
+    })
+
+    return query
+
 }

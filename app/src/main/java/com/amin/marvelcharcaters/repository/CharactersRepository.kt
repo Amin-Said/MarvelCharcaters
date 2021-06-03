@@ -11,9 +11,7 @@ import com.amin.marvelcharcaters.utils.extensions.letOnFalseOnSuspend
 import com.amin.marvelcharcaters.utils.extensions.letOnTrueOnSuspend
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,7 +34,7 @@ class CharactersRepository @Inject constructor(
             apiClient.fetchAllCharacters(key, hash, timestamp, page)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as CharacterResponse).data}")
+                Timber.d("fetchAllCharacters apiResult : ${(it.getResult() as CharacterResponse).data}")
                 val response = (it.getResult() as CharacterResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
@@ -58,7 +56,7 @@ class CharactersRepository @Inject constructor(
             apiClient.fetchCharactersDataForSearch(key, hash, timestamp, query)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as CharacterResponse).data}")
+                Timber.d("fetchCharactersSearch apiResult : ${(it.getResult() as CharacterResponse).data}")
                 val response = (it.getResult() as CharacterResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {

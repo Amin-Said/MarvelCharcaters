@@ -33,7 +33,7 @@ class DetailsRepository @Inject constructor(
             apiClient.fetchResourceData(url, key, hash, timestamp)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as BaseResponse).data}")
+                Timber.d("fetchResourceData apiResult : ${(it.getResult() as BaseResponse).data}")
                 val response = (it.getResult() as BaseResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
@@ -52,7 +52,7 @@ class DetailsRepository @Inject constructor(
             apiClient.fetchComicResourceData(url, key, hash, timestamp)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as ComicResourceResponse).data}")
+                Timber.d("fetchComicResource apiResult : ${(it.getResult() as ComicResourceResponse).data}")
                 val response = (it.getResult() as ComicResourceResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {

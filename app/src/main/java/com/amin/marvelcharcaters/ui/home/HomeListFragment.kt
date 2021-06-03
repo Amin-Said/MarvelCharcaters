@@ -1,6 +1,7 @@
 package com.amin.marvelcharcaters.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,17 +23,24 @@ import com.amin.marvelcharcaters.model.*
 import com.amin.marvelcharcaters.utils.Config
 import com.amin.marvelcharcaters.utils.Helper.md5
 import com.amin.marvelcharcaters.utils.data.ApiResult
+import com.amin.marvelcharcaters.utils.extensions.getQueryTextChangeStateFlow
 import com.amin.marvelcharcaters.utils.extensions.readFile
 import com.amin.taskdemo.SearchRecyclerAdapter
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class HomeListFragment : Fragment() ,
-    CharactersRecyclerAdapter.Interaction,SearchRecyclerAdapter.Interaction{
+class HomeListFragment : Fragment(),
+    CharactersRecyclerAdapter.Interaction, SearchRecyclerAdapter.Interaction {
 
     private var _binding: FragmentHomeListBinding? = null
     private val binding get() = _binding!!
@@ -52,25 +60,6 @@ class HomeListFragment : Fragment() ,
 
     @VisibleForTesting
     val viewModel: HomeListViewModel by viewModels()
-
-
-    // for testing locally
-    fun getOfflineData(): CharacterResponse? {
-        val charactersJsonResponseToString = requireActivity().assets.readFile("ch0.json")
-
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<CharacterResponse> =
-            moshi.adapter<CharacterResponse>(CharacterResponse::class.java)
-
-        val response: CharacterResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
-        System.out.println("DEBUG : moshi : $response")
-        return response
-    }
-
-
-
 
 
     private val scrollListener = object : RecyclerView.OnScrollListener() {
@@ -114,6 +103,7 @@ class HomeListFragment : Fragment() ,
     }
 
     override fun onDestroyView() {
+
         super.onDestroyView()
         _binding = null
     }
@@ -121,24 +111,28 @@ class HomeListFragment : Fragment() ,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        loadingPage = 0
+
         setupViewForAppBarCustomization()
 
         initRecyclerView()
 
         // for search open and close handle
-        binding.searchView.setOnSearchClickListener {  changeToolbarOnStartSearch()  }
+        binding.searchView.setOnSearchClickListener { changeToolbarOnStartSearch() }
 
-        binding.cancelBtn.setOnClickListener{changeToolbarOnCancelSearch()}
+        binding.cancelBtn.setOnClickListener { changeToolbarOnCancelSearch() }
 
-        binding.searchView.setOnCloseListener{handleOnSearchClose()
-            false}
+        binding.searchView.setOnCloseListener {
+            handleOnSearchClose()
+            false
+        }
 
         handleSearchQuery()
 
         observeAllCharactersLiveData(loadingPage)
 
-
     }
+
 
     private fun changeToolbarOnStartSearch() {
 
@@ -156,7 +150,7 @@ class HomeListFragment : Fragment() ,
         binding.searchView.setIconified(true)
     }
 
-    private fun setupViewForAppBarCustomization(){
+    private fun setupViewForAppBarCustomization() {
         // to customize the SearchView EditText
         searchEditText = binding.searchView.findViewById(R.id.search_src_text) as EditText
 
@@ -167,12 +161,12 @@ class HomeListFragment : Fragment() ,
         closeBtn.setImageDrawable(null)
     }
 
-    private fun handleOnSearchClose(){
+    private fun handleOnSearchClose() {
         binding.searchView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
         binding.appLogo.visibility = View.VISIBLE
     }
 
-    private fun handleSearchQuery(){
+    private fun handleSearchQuery() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -180,16 +174,15 @@ class HomeListFragment : Fragment() ,
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
+                Timber.d("SEARCHRESULT on old")
                 searchEditText.isCursorVisible = newText.isNotEmpty()
 
                 if (newText.trim().isNotEmpty()) {
 
                     binding.blurBehindLayout.viewBehind = binding.toBlur
                     binding.blurBehindLayout.visibility = View.VISIBLE
-//                    getOfflineData()?.data?.results?.let { mSearchAdapter.submitList(it) }
 
-                    observeAllCharactersLiveData(newText)
-
+                    observeSearchResultLiveData(newText)
 
                 } else {
                     binding.blurBehindLayout.visibility = View.GONE
@@ -234,23 +227,24 @@ class HomeListFragment : Fragment() ,
         findNavController().navigate(action)
     }
 
-    private fun observeAllCharactersLiveData(page:Int) {
-        val currentTimestamp = System.currentTimeMillis()/1000
-        val input = currentTimestamp.toString()+ Config.PRIVATE_KEY_VALUE+ Config.PRIVATE_KEY_VALUE
-        val hash = md5(input)
-//        viewModel.fetchAllCharacters(Config.PUBLIC_KEY_VALUE,hash,currentTimestamp.toString() ,page.toString())
-        viewModel.fetchAllCharacters(Config.PUBLIC_KEY_VALUE,Config.HASH_Value,Config.TIMESTAMP_Value.toString() ,page.toString())
+    private fun observeAllCharactersLiveData(page: Int) {
+        viewModel.fetchAllCharacters(
+            Config.PUBLIC_KEY_VALUE,
+            Config.HASH_Value,
+            Config.TIMESTAMP_Value.toString(),
+            page.toString()
+        )
 
         viewModel.result.observe(viewLifecycleOwner) {
-            when(it){
-                ApiResult.Loading->{
+            when (it) {
+                ApiResult.Loading -> {
 
                 }
-                is ApiResult.Error->{
+                is ApiResult.Error -> {
 
 
                 }
-                is ApiResult.Success->{
+                is ApiResult.Success -> {
                     QUERY_PAGE_SIZE = it.data.data.limit
                     when {
                         it.data.data.offset < it.data.data.total -> {
@@ -270,25 +264,31 @@ class HomeListFragment : Fragment() ,
         }
 
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
-            if(it){
+            if (it) {
 
             }
         }
     }
 
 
-    private fun observeAllCharactersLiveData(query:String) {
-        viewModel.fetchCharactersDataForSearch(Config.PUBLIC_KEY_VALUE,Config.HASH_Value,Config.TIMESTAMP_Value.toString() ,query)
+    private fun observeSearchResultLiveData(query: String) {
+        viewModel.fetchCharactersDataForSearch(
+            Config.PUBLIC_KEY_VALUE,
+            Config.HASH_Value,
+            Config.TIMESTAMP_Value.toString(),
+            query
+        )
 
         viewModel.searchResult.observe(viewLifecycleOwner) {
-            when(it){
-                ApiResult.Loading->{
+            when (it) {
+                ApiResult.Loading -> {
 
                 }
-                is ApiResult.Error->{
+                is ApiResult.Error -> {
 
                 }
-                is ApiResult.Success->{
+                is ApiResult.Success -> {
+                    Timber.d("DEBUG SEARCH RETURN ${it.data.data.total}")
                     initSearchRecyclerView()
                     mSearchAdapter.submitList(it.data.data.results)
                     mSearchAdapter.filter.filter(query)
@@ -300,12 +300,26 @@ class HomeListFragment : Fragment() ,
         }
 
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
-            if(it){
+            if (it) {
 
             }
         }
     }
 
+    // for testing locally
+    fun getOfflineData(): CharacterResponse? {
+        val charactersJsonResponseToString = requireActivity().assets.readFile("ch0.json")
+
+        val moshi = Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
+        val jsonAdapter: JsonAdapter<CharacterResponse> =
+            moshi.adapter<CharacterResponse>(CharacterResponse::class.java)
+
+        val response: CharacterResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
+        System.out.println("DEBUG : local : $response")
+        return response
+    }
 
 
 
