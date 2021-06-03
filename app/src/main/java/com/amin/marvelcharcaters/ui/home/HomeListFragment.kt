@@ -1,4 +1,4 @@
-package com.amin.marvelcharcaters.ui
+package com.amin.marvelcharcaters.ui.home
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,6 +9,9 @@ import android.widget.AbsListView
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.SearchView
+import androidx.annotation.VisibleForTesting
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,12 +19,18 @@ import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.adapter.CharactersRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentHomeListBinding
 import com.amin.marvelcharcaters.model.*
-import com.amin.marvelcharcaters.utils.readFile
+import com.amin.marvelcharcaters.utils.Config
+import com.amin.marvelcharcaters.utils.Helper.md5
+import com.amin.marvelcharcaters.utils.data.ApiResult
+import com.amin.marvelcharcaters.utils.extensions.readFile
 import com.amin.taskdemo.SearchRecyclerAdapter
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
+@AndroidEntryPoint
 class HomeListFragment : Fragment() ,
     CharactersRecyclerAdapter.Interaction,SearchRecyclerAdapter.Interaction{
 
@@ -34,7 +43,18 @@ class HomeListFragment : Fragment() ,
 
     var isSearchOpened = false
 
+    var isLoading = false
+    val isLastPage = false
+    var isScrolling = false
+    var QUERY_PAGE_SIZE = 20
+    var loadingPage = 0
 
+
+    @VisibleForTesting
+    val viewModel: HomeListViewModel by viewModels()
+
+
+    // for testing locally
     fun getOfflineData(): CharacterResponse? {
         val charactersJsonResponseToString = requireActivity().assets.readFile("ch0.json")
 
@@ -52,13 +72,8 @@ class HomeListFragment : Fragment() ,
 
 
 
-    var isLoading = false
-    val isLastPage = false
-    var isScrolling = true
-    var QUERY_PAGE_SIZE = 20
-    var page = 0
 
-    val scrollListener = object : RecyclerView.OnScrollListener() {
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -73,13 +88,9 @@ class HomeListFragment : Fragment() ,
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
                     isTotalMoreThanVisible && isScrolling
 
-            if (isAtLastItem) {
-                getOfflineData()?.data?.results?.let { mAdapter.addToCurrentList(it) }
+            if (shouldPaginate) {
+                observeAllCharactersLiveData(loadingPage)
                 isScrolling = false
-            }
-            else {
-
-//                binding.recyclerView.setPadding(0, 0, 0, 0)
             }
         }
 
@@ -113,7 +124,6 @@ class HomeListFragment : Fragment() ,
         setupViewForAppBarCustomization()
 
         initRecyclerView()
-        getOfflineData()?.data?.results?.let { mAdapter.addToCurrentList(it) }
 
         // for search open and close handle
         binding.searchView.setOnSearchClickListener {  changeToolbarOnStartSearch()  }
@@ -124,6 +134,8 @@ class HomeListFragment : Fragment() ,
             false}
 
         handleSearchQuery()
+
+        observeAllCharactersLiveData(loadingPage)
 
 
     }
@@ -174,9 +186,9 @@ class HomeListFragment : Fragment() ,
 
                     binding.blurBehindLayout.viewBehind = binding.toBlur
                     binding.blurBehindLayout.visibility = View.VISIBLE
-                    initSearchRecyclerView()
-                    getOfflineData()?.data?.results?.let { mSearchAdapter.submitList(it) }
-                    mSearchAdapter.filter.filter(newText)
+//                    getOfflineData()?.data?.results?.let { mSearchAdapter.submitList(it) }
+
+                    observeAllCharactersLiveData(newText)
 
 
                 } else {
@@ -210,12 +222,91 @@ class HomeListFragment : Fragment() ,
     }
 
     override fun onSearchItemSelected(position: Int, item: CharacterResult) {
+        // not used for now
     }
 
     override fun onCharacterItemSelected(position: Int, item: CharacterResult) {
         if (isSearchOpened) changeToolbarOnCancelSearch()
-        val action = HomeListFragmentDirections.actionGoToDetails(item)
+        val action =
+            HomeListFragmentDirections.actionGoToDetails(
+                item
+            )
         findNavController().navigate(action)
     }
+
+    private fun observeAllCharactersLiveData(page:Int) {
+        val currentTimestamp = System.currentTimeMillis()/1000
+        val input = currentTimestamp.toString()+ Config.PRIVATE_KEY_VALUE+ Config.PRIVATE_KEY_VALUE
+        val hash = md5(input)
+//        viewModel.fetchAllCharacters(Config.PUBLIC_KEY_VALUE,hash,currentTimestamp.toString() ,page.toString())
+        viewModel.fetchAllCharacters(Config.PUBLIC_KEY_VALUE,Config.HASH_Value,Config.TIMESTAMP_Value.toString() ,page.toString())
+
+        viewModel.result.observe(viewLifecycleOwner) {
+            when(it){
+                ApiResult.Loading->{
+
+                }
+                is ApiResult.Error->{
+
+
+                }
+                is ApiResult.Success->{
+                    QUERY_PAGE_SIZE = it.data.data.limit
+                    when {
+                        it.data.data.offset < it.data.data.total -> {
+
+                            mAdapter.addToCurrentList(it.data.data.results)
+                            loadingPage++
+
+
+                        }
+                        else -> {
+                            isScrolling = false
+                        }
+                    }
+                }
+            }
+
+        }
+
+        viewModel.isNetworkError.observe(viewLifecycleOwner) {
+            if(it){
+
+            }
+        }
+    }
+
+
+    private fun observeAllCharactersLiveData(query:String) {
+        viewModel.fetchCharactersDataForSearch(Config.PUBLIC_KEY_VALUE,Config.HASH_Value,Config.TIMESTAMP_Value.toString() ,query)
+
+        viewModel.searchResult.observe(viewLifecycleOwner) {
+            when(it){
+                ApiResult.Loading->{
+
+                }
+                is ApiResult.Error->{
+
+                }
+                is ApiResult.Success->{
+                    initSearchRecyclerView()
+                    mSearchAdapter.submitList(it.data.data.results)
+                    mSearchAdapter.filter.filter(query)
+
+
+                }
+            }
+
+        }
+
+        viewModel.isNetworkError.observe(viewLifecycleOwner) {
+            if(it){
+
+            }
+        }
+    }
+
+
+
 
 }

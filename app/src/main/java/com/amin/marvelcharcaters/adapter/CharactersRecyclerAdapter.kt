@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.CharacterItemBinding
 import com.amin.marvelcharcaters.model.CharacterResult
-import com.amin.marvelcharcaters.utils.getImage
+import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
 import java.util.ArrayList
 

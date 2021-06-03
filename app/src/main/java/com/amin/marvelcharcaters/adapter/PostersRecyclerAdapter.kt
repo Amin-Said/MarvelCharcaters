@@ -8,8 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.PostersItemBinding
 import com.amin.marvelcharcaters.model.BaseResult
-import com.amin.marvelcharcaters.model.PosterItem
-import com.amin.marvelcharcaters.utils.getImage
+import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
 
 class PostersRecyclerAdapter() :

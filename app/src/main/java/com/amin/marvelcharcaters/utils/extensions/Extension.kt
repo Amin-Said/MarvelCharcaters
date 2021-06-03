@@ -1,4 +1,4 @@
-package com.amin.marvelcharcaters.utils
+package com.amin.marvelcharcaters.utils.extensions
 
 import android.content.res.AssetManager
 import com.amin.marvelcharcaters.model.*

@@ -33,7 +33,6 @@
             android:layout_height="0dp"
             android:gravity="center"
             android:padding="@dimen/paddinf_for_character_title_item"
-            android:text="TextView"
             android:textColor="@color/search_result_title_color"
             android:textSize="@dimen/character_item_font_size"
             android:textStyle="bold"

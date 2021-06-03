@@ -1,0 +1,26 @@
+package com.amin.marvelcharcaters.api
+
+import com.amin.marvelcharcaters.model.CharacterResponse
+import com.amin.marvelcharcaters.utils.Config
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Query
+
+interface ApiService {
+    @GET(Config.BASE_RETURN)
+    suspend fun fetchCharactersDataForSearch(
+        @Query(Config.KEY_PARAM) apiKey: String,
+        @Query(Config.HASH_PARAM) hash: String,
+        @Query(Config.TIMESTAMP_PARRAM) timestamp: String,
+        @Query(Config.SEARCH_PARAM) searchQuery: String
+    ): Response<CharacterResponse>
+
+    @GET(Config.BASE_RETURN)
+    suspend fun fetchAllCharacters(
+        @Query(Config.KEY_PARAM) apiKey: String,
+        @Query(Config.HASH_PARAM) hash: String,
+        @Query(Config.TIMESTAMP_PARRAM) timestamp: String,
+        @Query(Config.PAGE_PARAM) page: String
+    ): Response<CharacterResponse>
+}

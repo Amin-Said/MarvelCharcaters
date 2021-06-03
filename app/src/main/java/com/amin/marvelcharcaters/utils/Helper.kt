@@ -8,6 +8,9 @@ import android.text.style.BackgroundColorSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.core.graphics.ColorUtils
+import java.math.BigInteger
+import java.security.MessageDigest
+
 object Helper{
 
 public fun buildHighlightString(originalText: String, textToHighlight: String): SpannableString? {
@@ -70,4 +73,9 @@ fun buildHighlightString(
     }
     return spannableString
 }
+
+    fun md5(input:String): String {
+        val md = MessageDigest.getInstance("MD5")
+        return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
+    }
 }

@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +12,7 @@ import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.SearchItemBinding
 import com.amin.marvelcharcaters.model.CharacterResult
 import com.amin.marvelcharcaters.utils.Helper
-import com.amin.marvelcharcaters.utils.getImage
+import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
 import java.util.*
 

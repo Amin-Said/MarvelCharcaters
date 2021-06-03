@@ -33,6 +33,8 @@
     <dimen name="character_item_height">150dp</dimen>
     <dimen name="search_item_height">70dp</dimen>
     <dimen name="search_item_width">70dp</dimen>
+    <dimen name="poster_item_width">70dp</dimen>
+    <dimen name="poster_item_height">120dp</dimen>
 
 
 
