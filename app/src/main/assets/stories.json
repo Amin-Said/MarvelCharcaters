@@ -1,0 +1,117 @@
+{
+  "code": 200,
+  "status": "Ok",
+  "copyright": "© 2021 MARVEL",
+  "attributionText": "Data provided by Marvel. © 2021 MARVEL",
+  "attributionHTML": "<a href=\"http://marvel.com\">Data provided by Marvel. © 2021 MARVEL</a>",
+  "etag": "cc6e490e0df3fab7bee4bc3ee72dae8f8243a236",
+  "data": {
+    "offset": 0,
+    "limit": 20,
+    "total": 1,
+    "count": 1,
+    "results": [
+      {
+        "id": 92078,
+        "title": "Hulk (2008) #55",
+        "description": "The hands of the doomsday clock race towards MAYAN RULE! Former Avengers arrive to help stop the end of the world as more Mayan gods return. Rick \"A-Bomb\" Jones falls in battle!",
+        "resourceURI": "http://gateway.marvel.com/v1/public/stories/92078",
+        "type": "cover",
+        "modified": "2018-09-20T12:57:37-0400",
+        "thumbnail": null,
+        "creators": {
+          "available": 2,
+          "collectionURI": "http://gateway.marvel.com/v1/public/stories/92078/creators",
+          "items": [
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/creators/3646",
+              "name": "Dale Eaglesham",
+              "role": "penciller (cover)"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/creators/832",
+              "name": "Val Staples",
+              "role": "colorist"
+            }
+          ],
+          "returned": 2
+        },
+        "characters": {
+          "available": 9,
+          "collectionURI": "http://gateway.marvel.com/v1/public/stories/92078/characters",
+          "items": [
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1017100",
+              "name": "A-Bomb (HAS)"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1010370",
+              "name": "Alpha Flight"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1009220",
+              "name": "Captain America"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1010854",
+              "name": "Living Lightning"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1010805",
+              "name": "Machine Man"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1011360",
+              "name": "Red Hulk"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1009583",
+              "name": "She-Hulk (Jennifer Walters)"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1011392",
+              "name": "She-Hulk (Lyra)"
+            },
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/characters/1010864",
+              "name": "Silverclaw"
+            }
+          ],
+          "returned": 9
+        },
+        "series": {
+          "available": 1,
+          "collectionURI": "http://gateway.marvel.com/v1/public/stories/92078/series",
+          "items": [
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/series/3374",
+              "name": "Hulk (2008 - 2012)"
+            }
+          ],
+          "returned": 1
+        },
+        "comics": {
+          "available": 1,
+          "collectionURI": "http://gateway.marvel.com/v1/public/stories/92078/comics",
+          "items": [
+            {
+              "resourceURI": "http://gateway.marvel.com/v1/public/comics/40628",
+              "name": "Hulk (2008) #55"
+            }
+          ],
+          "returned": 1
+        },
+        "events": {
+          "available": 0,
+          "collectionURI": "http://gateway.marvel.com/v1/public/stories/92078/events",
+          "items": [],
+          "returned": 0
+        },
+        "originalIssue": {
+          "resourceURI": "http://gateway.marvel.com/v1/public/comics/40628",
+          "name": "Hulk (2008) #55"
+        }
+      }
+    ]
+  }
+}

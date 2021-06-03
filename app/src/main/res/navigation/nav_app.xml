@@ -22,5 +22,10 @@
         <action
             android:id="@+id/actionGetBackToDetails"
             app:destination="@id/homeListFragment" />
+        <argument
+            android:name="character?"
+            app:argType="com.amin.marvelcharcaters.model.CharacterResult"
+            android:defaultValue="@null"
+            app:nullable="true"/>
     </fragment>
 </navigation>

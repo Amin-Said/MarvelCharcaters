@@ -29,4 +29,5 @@
     <color name="details_item_details_color">#f4f4f5</color>
     <color name="details_recycler_item_title_color">#141e28</color>
     <color name="details_character_name_color">#ffffff</color>
+    <color name="background_back_arrow">#991B1B1B</color>
 </resources>
