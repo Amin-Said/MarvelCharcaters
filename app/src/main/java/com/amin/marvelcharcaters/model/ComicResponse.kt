@@ -3,13 +3,25 @@ package com.amin.marvelcharcaters.model
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
+
+@Parcelize
+data class BaseResponse(
+    val attributionHTML: String,
+    val attributionText: String,
+    val code: Int,
+    val copyright: String,
+    val `data`: DetailsData,
+    val etag: String,
+    val status: String
+): Parcelable
+
 @Parcelize
 data class ComicResponse(
     val attributionHTML: String,
     val attributionText: String,
     val code: Int,
     val copyright: String,
-    val `data`: DetailsData,
+    val `data`: ComicData,
     val etag: String,
     val status: String
 ): Parcelable
@@ -33,7 +45,7 @@ data class ComicData(
     val count: Int,
     val limit: Int,
     val offset: Int,
-    val results: List<BaseResult>,
+    val results: List<ComicResult>,
     val total: Int
 ): Parcelable
 
@@ -45,6 +57,7 @@ data class DetailsData(
     val results: List<BaseResult>,
     val total: Int
 ): Parcelable
+
 
 @Parcelize
 data class Date(

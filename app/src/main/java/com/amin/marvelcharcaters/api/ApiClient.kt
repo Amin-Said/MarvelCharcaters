@@ -10,4 +10,10 @@ class ApiClient @Inject constructor(
 
     suspend fun fetchAllCharacters(key: String, hash: String,timestamp: String,page: String) =
         apiService.fetchAllCharacters(key, hash,timestamp,page)
+
+    suspend fun fetchResourceData(url:String,key: String, hash: String,timestamp: String) =
+        apiService.fetchResourceData(url ,key, hash,timestamp)
+
+    suspend fun fetchComicResourceData(url:String,key: String, hash: String,timestamp: String) =
+        apiService.fetchComicResourceData(url ,key, hash,timestamp)
 }

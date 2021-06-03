@@ -7,6 +7,7 @@ fun AssetManager.readFile(fileName: String) = open(fileName)
     .bufferedReader()
     .use { it.readText() }
 
+// the next methods to read images as http because https not loading // now this fixed in manifest using android:usesCleartextTraffic="true"
 fun CharacterResult.getImage(path:String,extension: String):String{
      return "https"+path.substring(4)+"."+extension
 }

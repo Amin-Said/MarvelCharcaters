@@ -6,10 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.DetailsContentItemBinding
 import com.amin.marvelcharcaters.model.NestedItem
-import com.bumptech.glide.Glide
 
 class DetailsContentRecyclerAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -68,7 +66,7 @@ class DetailsContentRecyclerAdapter() :
                 adapter = mAdapter
             }
 
-            item.details?.results?.let { mAdapter.submitList(it) }
+            item.list?.let { mAdapter.submitList(it) }
 
         }
     }

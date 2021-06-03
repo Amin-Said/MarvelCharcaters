@@ -7,20 +7,19 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.PostersItemBinding
-import com.amin.marvelcharcaters.model.BaseResult
-import com.amin.marvelcharcaters.utils.extensions.getImage
+import com.amin.marvelcharcaters.model.PosterItem
 import com.bumptech.glide.Glide
 
 class PostersRecyclerAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val DIFF_CALLBACK = object : DiffUtil.ItemCallback<BaseResult>() {
+    val DIFF_CALLBACK = object : DiffUtil.ItemCallback<PosterItem>() {
 
-        override fun areItemsTheSame(oldItem: BaseResult, newItem: BaseResult): Boolean {
-          return oldItem.id == newItem.id
+        override fun areItemsTheSame(oldItem: PosterItem, newItem: PosterItem): Boolean {
+          return oldItem.title == newItem.title
         }
 
-        override fun areContentsTheSame(oldItem: BaseResult, newItem: BaseResult): Boolean {
+        override fun areContentsTheSame(oldItem: PosterItem, newItem: PosterItem): Boolean {
           return oldItem == newItem
         }
 
@@ -51,7 +50,7 @@ class PostersRecyclerAdapter() :
         return differ.currentList.size
     }
 
-    fun submitList(list: List<BaseResult>) {
+    fun submitList(list: List<PosterItem>) {
         differ.submitList(list)
     }
 
@@ -59,14 +58,12 @@ class PostersRecyclerAdapter() :
     constructor(
         private val binding: PostersItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: BaseResult) = with(binding.root) {
+        fun bind(item: PosterItem) = with(binding.root) {
 
-            binding.PosterTitle.text = item.name
-
-            var image = item.thumbnail?.extension?.let { item.getImage(item.thumbnail?.path, it) }
+            binding.PosterTitle.text = item.title
 
             Glide.with(binding.root.context)
-                .load(image)
+                .load(item.image)
                 .placeholder(R.drawable.image_placeholder)
                 .into(binding.posterImage)
 

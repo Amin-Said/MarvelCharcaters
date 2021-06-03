@@ -1,8 +1,9 @@
 package com.amin.marvelcharcaters.repository
 
-import com.amin.marvelcharcaters.model.CharacterResponse
-import com.amin.marvelcharcaters.di.IODispatcher
 import com.amin.marvelcharcaters.api.ApiClient
+import com.amin.marvelcharcaters.di.IODispatcher
+import com.amin.marvelcharcaters.model.BaseResponse
+import com.amin.marvelcharcaters.model.comicresource.ComicResourceResponse
 import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.marvelcharcaters.utils.data.DataSource
 import com.amin.marvelcharcaters.utils.extensions.getResult
@@ -19,25 +20,21 @@ import javax.inject.Inject
 
 private const val FAKE_DELAY_TIME = 1500L
 
-class CharactersRepository @Inject constructor(
+class DetailsRepository @Inject constructor(
     private val apiClient: ApiClient,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher
-) : DataSource(), CharactersRepositoryImpl {
+) : DataSource(), DetailsRepositoryImpl {
 
-
-    override fun fetchAllCharacters(
-        key: String,
-        hash: String,
-        timestamp: String,
-        page: String
-    ): Flow<ApiResult<CharacterResponse>> = flow {
+    override fun fetchResourceData(
+        url: String, key: String, hash: String, timestamp: String
+    ): Flow<ApiResult<BaseResponse>> = flow {
         emit(ApiResult.Loading)
         networkCall {
-            apiClient.fetchAllCharacters(key, hash, timestamp, page)
+            apiClient.fetchResourceData(url, key, hash, timestamp)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as CharacterResponse).data}")
-                val response = (it.getResult() as CharacterResponse)
+                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as BaseResponse).data}")
+                val response = (it.getResult() as BaseResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
                 /* fake call */
@@ -47,19 +44,16 @@ class CharactersRepository @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
-    override fun fetchCharactersDataForSearch(
-        key: String,
-        hash: String,
-        timestamp: String,
-        query: String
-    ): Flow<ApiResult<CharacterResponse>> = flow {
+    override fun fetchComicResourceData(
+        url: String, key: String, hash: String, timestamp: String
+    ): Flow<ApiResult<ComicResourceResponse>> = flow {
         emit(ApiResult.Loading)
         networkCall {
-            apiClient.fetchCharactersDataForSearch(key, hash, timestamp, query)
+            apiClient.fetchComicResourceData(url, key, hash, timestamp)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as CharacterResponse).data}")
-                val response = (it.getResult() as CharacterResponse)
+                Timber.d("fetchAlbumTracks apiResult : ${(it.getResult() as ComicResourceResponse).data}")
+                val response = (it.getResult() as ComicResourceResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
                 /* fake call */
@@ -68,22 +62,26 @@ class CharactersRepository @Inject constructor(
             }
         }
     }.flowOn(ioDispatcher)
+
 }
 
 
-interface CharactersRepositoryImpl {
-    fun fetchAllCharacters(
+interface DetailsRepositoryImpl {
+    fun fetchResourceData(
         key: String,
         hash: String,
         timestamp: String,
         page: String
-    ): Flow<ApiResult<CharacterResponse>>
+    ): Flow<ApiResult<BaseResponse>>
 
-    fun fetchCharactersDataForSearch(
+    fun fetchComicResourceData(
         key: String,
         hash: String,
         timestamp: String,
-        query: String
-    ): Flow<ApiResult<CharacterResponse>>
+        page: String
+    ): Flow<ApiResult<ComicResourceResponse>>
+
+
+
 
 }

@@ -13,7 +13,6 @@ object Config {
     const val SEARCH_PARAM : String = "nameStartsWith"
     const val PAGE_PARAM : String = "offset"
 
-//    const val PUBLIC_KEY_VALUE : String = "c12ae083e92d430c18a79f1e84fd5ffc"
     const val PRIVATE_KEY_VALUE : String = "0eeda546f8ebc1fb4c292e37cea724f82e6e8d94"
     const val HASH_PARAM : String = "hash"
     const val TIMESTAMP_PARRAM : String = "ts"

@@ -2,6 +2,7 @@ package com.amin.marvelcharcaters.di
 
 import com.amin.marvelcharcaters.api.ApiClient
 import com.amin.marvelcharcaters.repository.CharactersRepository
+import com.amin.marvelcharcaters.repository.DetailsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,5 +20,12 @@ object RepositoryModule {
         apiClient: ApiClient,
         @IODispatcher dispatcher: CoroutineDispatcher
     ) = CharactersRepository(apiClient, dispatcher)
+
+    @Provides
+    @Singleton
+    fun providesDetailsRepository(
+        apiClient: ApiClient,
+        @IODispatcher dispatcher: CoroutineDispatcher
+    ) = DetailsRepository(apiClient, dispatcher)
 
 }
