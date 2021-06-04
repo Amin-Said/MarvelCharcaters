@@ -1,7 +1,6 @@
 package com.amin.marvelcharcaters.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,22 +20,11 @@ import com.amin.marvelcharcaters.adapter.CharactersRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentHomeListBinding
 import com.amin.marvelcharcaters.model.*
 import com.amin.marvelcharcaters.utils.Config
-import com.amin.marvelcharcaters.utils.Helper.md5
+import com.amin.marvelcharcaters.utils.Helper.isOnline
 import com.amin.marvelcharcaters.utils.data.ApiResult
-import com.amin.marvelcharcaters.utils.extensions.getQueryTextChangeStateFlow
-import com.amin.marvelcharcaters.utils.extensions.readFile
 import com.amin.taskdemo.SearchRecyclerAdapter
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class HomeListFragment : Fragment(),
@@ -46,15 +34,15 @@ class HomeListFragment : Fragment(),
     private val binding get() = _binding!!
     lateinit var searchEditText: EditText
 
-    lateinit var mAdapter: CharactersRecyclerAdapter
-    lateinit var mSearchAdapter: SearchRecyclerAdapter
+    private lateinit var mAdapter: CharactersRecyclerAdapter
+    private lateinit var mSearchAdapter: SearchRecyclerAdapter
 
-    var isSearchOpened = false
+    private var isSearchOpened = false
 
     var isLoading = false
     val isLastPage = false
     var isScrolling = false
-    var QUERY_PAGE_SIZE = 20
+    var queryPageSize = 20
     var loadingPage = 0
 
 
@@ -73,7 +61,7 @@ class HomeListFragment : Fragment(),
             val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
             val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
             val isNotAtBeginning = firstVisibleItemPosition >= 0
-            val isTotalMoreThanVisible = totalItemCount >= QUERY_PAGE_SIZE
+            val isTotalMoreThanVisible = totalItemCount >= queryPageSize
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
                     isTotalMoreThanVisible && isScrolling
 
@@ -129,10 +117,42 @@ class HomeListFragment : Fragment(),
 
         handleSearchQuery()
 
-        observeAllCharactersLiveData(loadingPage)
+        if (isOnline(requireActivity())){
+            observeAllCharactersLiveData(loadingPage)
+        }else{
+            handleErrorNetworkState()
+        }
+
 
     }
 
+    private fun initRecyclerView() {
+        binding.charactersRV.apply {
+            layoutManager = LinearLayoutManager(requireActivity())
+            mAdapter =
+                CharactersRecyclerAdapter(this@HomeListFragment)
+            adapter = mAdapter
+            addOnScrollListener(this@HomeListFragment.scrollListener)
+        }
+    }
+
+    private fun initSearchRecyclerView() {
+        binding.searchRV.apply {
+            layoutManager = LinearLayoutManager(requireActivity())
+            mSearchAdapter = SearchRecyclerAdapter(this@HomeListFragment)
+            adapter = mSearchAdapter
+        }
+    }
+
+
+    // for other views setup
+    private fun startLoading(){
+        binding.avi.smoothToShow()
+    }
+
+    private fun endLoading(){
+        binding.avi.hide()
+    }
 
     private fun changeToolbarOnStartSearch() {
 
@@ -147,7 +167,7 @@ class HomeListFragment : Fragment(),
         isSearchOpened = false
         binding.cancelBtn.visibility = View.GONE
         binding.searchView.setQuery("", false)
-        binding.searchView.setIconified(true)
+        binding.searchView.isIconified = true
     }
 
     private fun setupViewForAppBarCustomization() {
@@ -157,7 +177,7 @@ class HomeListFragment : Fragment(),
         // to hide the default close icon in SearchView EditText
         val closeBtn: ImageView =
             binding.searchView.findViewById(R.id.search_close_btn) as ImageView
-        closeBtn.setEnabled(false)
+        closeBtn.isEnabled = false
         closeBtn.setImageDrawable(null)
     }
 
@@ -174,7 +194,6 @@ class HomeListFragment : Fragment(),
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                Timber.d("SEARCHRESULT on old")
                 searchEditText.isCursorVisible = newText.isNotEmpty()
 
                 if (newText.trim().isNotEmpty()) {
@@ -195,64 +214,44 @@ class HomeListFragment : Fragment(),
         })
     }
 
-    private fun initRecyclerView() {
-        binding.charactersRV.apply {
-            layoutManager = LinearLayoutManager(requireActivity())
-            mAdapter =
-                CharactersRecyclerAdapter(this@HomeListFragment)
-            adapter = mAdapter
-            addOnScrollListener(this@HomeListFragment.scrollListener)
-        }
+    private fun handleErrorNetworkState(){
+        binding.avi.smoothToHide()
+        binding.errorMsg.visibility = View.VISIBLE
+        binding.errorMsg.text = requireActivity().getString(R.string.error_message_Network)
     }
 
-    private fun initSearchRecyclerView() {
-        println("DEBUG in init")
-        binding.searchRV.apply {
-            layoutManager = LinearLayoutManager(requireActivity())
-            mSearchAdapter = SearchRecyclerAdapter(this@HomeListFragment)
-            adapter = mSearchAdapter
-        }
+    private fun handleRequestError(){
+        binding.avi.smoothToHide()
+        binding.errorMsg.visibility = View.VISIBLE
+        binding.errorMsg.text = requireActivity().getString(R.string.error_message_Request)
     }
 
-    override fun onSearchItemSelected(position: Int, item: CharacterResult) {
-        // not used for now
-    }
-
-    override fun onCharacterItemSelected(position: Int, item: CharacterResult) {
-        if (isSearchOpened) changeToolbarOnCancelSearch()
-        val action =
-            HomeListFragmentDirections.actionGoToDetails(
-                item
-            )
-        findNavController().navigate(action)
-    }
-
+    // for getting data and make actions on it
     private fun observeAllCharactersLiveData(page: Int) {
         viewModel.fetchAllCharacters(
             Config.PUBLIC_KEY_VALUE,
             Config.HASH_Value,
-            Config.TIMESTAMP_Value.toString(),
+            Config.TIMESTAMP_Value,
             page.toString()
         )
 
         viewModel.result.observe(viewLifecycleOwner) {
             when (it) {
                 ApiResult.Loading -> {
-
+                    startLoading()
                 }
                 is ApiResult.Error -> {
-
-
+                    handleRequestError()
+                    Timber.d("DEBUERROR error")
                 }
                 is ApiResult.Success -> {
-                    QUERY_PAGE_SIZE = it.data.data.limit
+                    endLoading()
+                    queryPageSize = it.data.data.limit
                     when {
                         it.data.data.offset < it.data.data.total -> {
 
                             mAdapter.addToCurrentList(it.data.data.results)
                             loadingPage++
-
-
                         }
                         else -> {
                             isScrolling = false
@@ -265,9 +264,13 @@ class HomeListFragment : Fragment(),
 
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
             if (it) {
-
+                handleErrorNetworkState()
             }
         }
+    }
+
+    override fun onCharacterItemSelected(position: Int, item: CharacterResult) {
+        goToCharacterDetails(item)
     }
 
 
@@ -275,7 +278,7 @@ class HomeListFragment : Fragment(),
         viewModel.fetchCharactersDataForSearch(
             Config.PUBLIC_KEY_VALUE,
             Config.HASH_Value,
-            Config.TIMESTAMP_Value.toString(),
+            Config.TIMESTAMP_Value,
             query
         )
 
@@ -285,10 +288,9 @@ class HomeListFragment : Fragment(),
 
                 }
                 is ApiResult.Error -> {
-
+                    handleRequestError()
                 }
                 is ApiResult.Success -> {
-                    Timber.d("DEBUG SEARCH RETURN ${it.data.data.total}")
                     initSearchRecyclerView()
                     mSearchAdapter.submitList(it.data.data.results)
                     mSearchAdapter.filter.filter(query)
@@ -301,26 +303,23 @@ class HomeListFragment : Fragment(),
 
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
             if (it) {
-
+                handleErrorNetworkState()
             }
         }
     }
 
-    // for testing locally
-    fun getOfflineData(): CharacterResponse? {
-        val charactersJsonResponseToString = requireActivity().assets.readFile("ch0.json")
-
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<CharacterResponse> =
-            moshi.adapter<CharacterResponse>(CharacterResponse::class.java)
-
-        val response: CharacterResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
-        System.out.println("DEBUG : local : $response")
-        return response
+    override fun onSearchItemSelected(position: Int, item: CharacterResult) {
+        goToCharacterDetails(item)
     }
 
+    private fun goToCharacterDetails(item: CharacterResult){
+        if (isSearchOpened) changeToolbarOnCancelSearch()
+        val action =
+            HomeListFragmentDirections.actionGoToDetails(
+                item
+            )
+        findNavController().navigate(action)
+    }
 
 
 }
