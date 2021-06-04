@@ -18,3 +18,4 @@ fun ApiResult<*>?.getResult(): Any? =  when(this) {
     is ApiResult.Success -> this.data
     else -> null
 }
+

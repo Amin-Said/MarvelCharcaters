@@ -20,6 +20,7 @@ import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.utils.Config
 import com.amin.marvelcharcaters.utils.Helper
 import com.amin.marvelcharcaters.utils.data.ApiResult
+import com.amin.marvelcharcaters.utils.data.ApiResult.*
 import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
@@ -86,6 +87,12 @@ class DetailsFragment : Fragment() {
                 .load(image)
                 .placeholder(R.drawable.image_placeholder)
                 .into(binding.characterImage)
+
+            Glide.with(binding.root.context)
+                .load(image)
+                .placeholder(R.drawable.image_placeholder)
+                .into(binding.backgroundImage)
+
             if (!result?.description.isNullOrEmpty()) {
                 binding.characterDescription.text = result?.description
             }
@@ -136,13 +143,13 @@ class DetailsFragment : Fragment() {
     // for getting data
     private fun requestResources(result: CharacterResult?) {
         comicsSize = result?.comics?.items?.size!!
-        storiesSize = result?.stories?.items?.size!!
-        eventsSize = result?.events?.items?.size
-        seriesSize = result?.series?.items?.size
+        storiesSize = result.stories.items.size
+        eventsSize = result.events.items.size
+        seriesSize = result.series.items.size
 
         totalRqeustsCount = comicsSize+storiesSize+eventsSize+seriesSize
 
-        for (item in result?.comics?.items!!) {
+        for (item in result.comics.items) {
             observeResourceData(Config.COMIC_TYPE, item.name, item.resourceURI)
         }
 
@@ -169,15 +176,18 @@ class DetailsFragment : Fragment() {
             Config.TIMESTAMP_Value
         )
 
+        viewModel.result.observeForever{
+
+        }
         viewModel.result.observe(viewLifecycleOwner) {
             when (it) {
-                ApiResult.Loading -> {
+                Loading -> {
                     startLoading()
                 }
-                is ApiResult.Error -> {
+                is Error -> {
                     handleRequestError()
                 }
-                is ApiResult.Success -> {
+                is Success -> {
                     totalRqeustsCount--
                     when (type) {
                         Config.COMIC_TYPE -> {
@@ -235,7 +245,7 @@ class DetailsFragment : Fragment() {
         mAdapter.submitList(mainList)
     }
 
-    fun getPosterItem(title:String , response:ResourceResponse):PosterItem{
+    private fun getPosterItem(title:String, response:ResourceResponse):PosterItem{
         return  PosterItem(
             title,
             response.data.results[0].thumbnail?.path + "." + response.data.results[0].thumbnail?.extension

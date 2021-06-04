@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_app"
-    app:startDestination="@id/homeListFragment">
+    app:startDestination="@id/splashFragment">
 
     <fragment
         android:id="@+id/homeListFragment"
@@ -28,11 +28,24 @@
             app:destination="@id/homeListFragment"
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
-            app:popUpTo="@+id/homeListFragment"/>
+            app:popUpTo="@+id/homeListFragment"
+            />
         <argument
             android:name="character?"
             app:argType="com.amin.marvelcharcaters.model.CharacterResult"
             android:defaultValue="@null"
             app:nullable="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.amin.marvelcharcaters.ui.splash.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" >
+        <action
+            android:id="@+id/actionGoToHome"
+            app:destination="@id/homeListFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

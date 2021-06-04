@@ -486,7 +486,4 @@ class HomeListFragment : Fragment(),
     }
 
 
-
-
-
 }

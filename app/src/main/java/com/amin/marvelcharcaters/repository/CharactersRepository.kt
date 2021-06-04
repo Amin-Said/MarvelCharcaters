@@ -39,7 +39,7 @@ class CharactersRepository @Inject constructor(
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
                 /* fake call */
-                delay(FAKE_DELAY_TIME)
+                //delay(FAKE_DELAY_TIME)
                 emit(ApiResult.Error(Exception("Unexpected error.")))
             }
         }
@@ -61,7 +61,7 @@ class CharactersRepository @Inject constructor(
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
                 /* fake call */
-                delay(FAKE_DELAY_TIME)
+                //delay(FAKE_DELAY_TIME)
                 emit(ApiResult.Error(Exception("Unexpected error.")))
             }
         }

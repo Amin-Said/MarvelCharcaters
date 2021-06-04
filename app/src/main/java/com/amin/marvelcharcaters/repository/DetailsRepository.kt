@@ -36,8 +36,9 @@ class DetailsRepository @Inject constructor(
                 val response = (it.getResult() as ResourceResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
+
                 /* fake call */
-                delay(FAKE_DELAY_TIME)
+               // delay(FAKE_DELAY_TIME)
                 emit(ApiResult.Error(Exception("Unexpected error.")))
             }
         }
