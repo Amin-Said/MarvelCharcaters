@@ -7,6 +7,8 @@
     <string name="description_not_available">I can\'t describe myself :)</string>
     <string name="error_message_Network">You have a trouble in your connection :(</string>
     <string name="error_message_Request">Something doesn\'t working fine :(</string>
+    <string name="error_message_network_lost">Sorry bad news, You lost your connection :(</string>
+
 
 
 

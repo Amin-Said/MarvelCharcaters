@@ -46,6 +46,10 @@ class DetailsFragment : Fragment() {
     private var  eventsSize = 0
     private var eventsCount = 0
 
+    private val hash =
+        Helper.md5(Config.TIMESTAMP_Value + Config.PRIVATE_KEY_VALUE + Config.PUBLIC_KEY_VALUE)
+
+
 
     @VisibleForTesting
     val viewModel: DetailsViewModel by viewModels()
@@ -155,7 +159,7 @@ class DetailsFragment : Fragment() {
         viewModel.fetchResourceData(
             url,
             Config.PUBLIC_KEY_VALUE,
-            Config.HASH_Value,
+            hash,
             Config.TIMESTAMP_Value
         )
 
@@ -218,7 +222,7 @@ class DetailsFragment : Fragment() {
         viewModel.fetchComicResourceData(
             url,
             Config.PUBLIC_KEY_VALUE,
-            Config.HASH_Value,
+            hash,
             Config.TIMESTAMP_Value
         )
 

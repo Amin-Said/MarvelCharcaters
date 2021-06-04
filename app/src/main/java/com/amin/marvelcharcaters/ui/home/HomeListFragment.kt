@@ -1,5 +1,9 @@
 package com.amin.marvelcharcaters.ui.home
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -7,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,8 +24,11 @@ import com.amin.marvelcharcaters.adapter.CharactersRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentHomeListBinding
 import com.amin.marvelcharcaters.model.CharacterResult
 import com.amin.marvelcharcaters.utils.Config
+import com.amin.marvelcharcaters.utils.Helper
 import com.amin.marvelcharcaters.utils.Helper.isOnline
 import com.amin.marvelcharcaters.utils.data.ApiResult
+import com.amin.marvelcharcaters.utils.extensions.toast
+import com.amin.marvelcharcaters.utils.extensions.toastFromResource
 import com.amin.taskdemo.SearchRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -41,12 +49,21 @@ class HomeListFragment : Fragment(),
     private lateinit var mSearchAdapter: SearchRecyclerAdapter
 
     private var isSearchOpened = false
+    private var isLoading = false
+    private val isLastPage = false
+    private var isScrolling = false
+    private var isCharacterDataLoaded = false
+    private var isSearchDataLoaded = false
+    private var isOnSearch = false
+    private var isOnNetworkError = false
+    private var isToastOpened = false
 
-    var isLoading = false
-    val isLastPage = false
-    var isScrolling = false
-    var queryPageSize = 20
-    var loadingPage = 0
+    private var queryPageSize = 20
+    private var loadingPage = 0
+    private var lastHitPage = 0
+
+    private val hash =
+        Helper.md5(Config.TIMESTAMP_Value + Config.PRIVATE_KEY_VALUE + Config.PUBLIC_KEY_VALUE)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -59,7 +76,62 @@ class HomeListFragment : Fragment(),
     @VisibleForTesting
     val viewModel: HomeListViewModel by viewModels()
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentHomeListBinding.inflate(inflater, container, false)
 
+        return binding.root
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        listenToNetwork()
+
+        // setup pagination page
+        loadingPage = 0
+
+        setupViewForAppBarCustomization()
+
+        initCharactersRecyclerView()
+
+        // for search open and close handle
+        binding.searchView.setOnSearchClickListener { changeToolbarOnStartSearch() }
+        binding.cancelBtn.setOnClickListener { changeToolbarOnCancelSearch() }
+        binding.searchView.setOnCloseListener {
+            handleOnSearchClose()
+            false
+        }
+
+        // used to query handle
+        job = Job()
+        handleSearchQuery()
+
+        requestAllCharactersData(loadingPage)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isSearchOpened) {
+            changeToolbarOnCancelSearch()
+        }
+        if (isOnNetworkError && !isCharacterDataLoaded){
+            requestAllCharactersData(loadingPage)
+        }
+    }
+
+    override fun onDestroyView() {
+        job.cancel()
+        super.onDestroyView()
+        _binding = null
+    }
+
+    // listeners
     private val scrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
@@ -76,7 +148,9 @@ class HomeListFragment : Fragment(),
                     isTotalMoreThanVisible && isScrolling
 
             if (shouldPaginate) {
-                observeAllCharactersLiveData(loadingPage)
+                if (loadingPage != 0 && loadingPage != lastHitPage) {
+                    requestAllCharactersData(loadingPage)
+                }
                 isScrolling = false
             }
         }
@@ -89,65 +163,49 @@ class HomeListFragment : Fragment(),
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun listenToNetwork(){
+        val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.registerDefaultNetworkCallback(object  : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                if (isOnNetworkError && !isCharacterDataLoaded){
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        val endTime = System.nanoTime()
+                        requestAllCharactersData(loadingPage)
+                    },0)
+                }
+            }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHomeListBinding.inflate(inflater, container, false)
-
-        return binding.root
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                requireActivity().toastFromResource(R.string.error_message_network_lost)
+            }
+        })
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        loadingPage = 0
-
-        job = Job()
-
-        setupViewForAppBarCustomization()
-
-        initRecyclerView()
-
-        // for search open and close handle
-        binding.searchView.setOnSearchClickListener { changeToolbarOnStartSearch() }
-
-        binding.cancelBtn.setOnClickListener { changeToolbarOnCancelSearch() }
-
-        binding.searchView.setOnCloseListener {
-            handleOnSearchClose()
-            false
-        }
-
-        handleSearchQuery()
-
-        if (isOnline(requireActivity())) {
-            observeAllCharactersLiveData(loadingPage)
-        } else {
-            handleErrorNetworkState()
-        }
-
-
+    override fun onCharacterItemSelected(position: Int, item: CharacterResult) {
+        goToCharacterDetails(item)
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (isSearchOpened){
-            changeToolbarOnCancelSearch()
-        }
+    override fun onSearchItemSelected(position: Int, item: CharacterResult) {
+        goToCharacterDetails(item)
     }
 
-    override fun onDestroyView() {
-        job.cancel()
-        super.onDestroyView()
-        _binding = null
+    // action on items clicks
+    private fun goToCharacterDetails(item: CharacterResult) {
+        if (isSearchOpened) changeToolbarOnCancelSearch()
+        val action =
+            HomeListFragmentDirections.actionGoToDetails(
+                item
+            )
+        findNavController().navigate(action)
+        isCharacterDataLoaded = false
     }
 
 
     // for setup RecyclerViews
-    private fun initRecyclerView() {
+    private fun initCharactersRecyclerView() {
         binding.charactersRV.apply {
             layoutManager = LinearLayoutManager(requireActivity())
             mAdapter =
@@ -168,6 +226,7 @@ class HomeListFragment : Fragment(),
     // for other views setup
     private fun startLoading() {
         binding.avi.smoothToShow()
+        binding.errorMsg.visibility = View.GONE
     }
 
     private fun endLoading() {
@@ -176,8 +235,10 @@ class HomeListFragment : Fragment(),
 
     private fun makeBlurBackGroundOnSearch() {
         try {
-            binding.blurBehindLayout.visibility = View.VISIBLE
-            binding.blurBehindLayout.viewBehind = binding.toBlur
+            if (isOnline(requireActivity())){
+                binding.blurBehindLayout.viewBehind = binding.toBlur
+                binding.blurBehindLayout.visibility = View.VISIBLE
+            }
         } catch (e: Exception) {
             e.stackTrace
         }
@@ -196,6 +257,7 @@ class HomeListFragment : Fragment(),
     private fun changeToolbarOnStartSearch() {
 
         isSearchOpened = true
+        isOnSearch = true
         searchEditText.isCursorVisible = false
         binding.cancelBtn.visibility = View.VISIBLE
         binding.searchView.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
@@ -204,6 +266,7 @@ class HomeListFragment : Fragment(),
 
     private fun changeToolbarOnCancelSearch() {
         isSearchOpened = false
+        isOnSearch = false
         binding.cancelBtn.visibility = View.GONE
         binding.searchView.setQuery("", false)
         binding.searchView.isIconified = true
@@ -223,6 +286,8 @@ class HomeListFragment : Fragment(),
     private fun handleOnSearchClose() {
         binding.searchView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
         binding.appLogo.visibility = View.VISIBLE
+        isSearchOpened = false
+        isSearchDataLoaded = false
     }
 
     private fun handleSearchQuery() {
@@ -263,7 +328,7 @@ class HomeListFragment : Fragment(),
             .collect { saveQuery ->
                 if (lastQuery != saveQuery) {
                     lastQuery = saveQuery
-                    observeSearchResultLiveData(saveQuery)
+                    requestSearchData(saveQuery)
                     resetLastQueryAfterTime()
                 }
             }
@@ -275,27 +340,74 @@ class HomeListFragment : Fragment(),
         }, 500)
     }
 
+    private fun makeDelayAfterToastToShowNext(){
+        Handler(Looper.getMainLooper()).postDelayed({
+            isToastOpened = false
+        }, 2000)
+    }
+
     private fun handleErrorNetworkState() {
+        isOnNetworkError = true
         binding.avi.smoothToHide()
-        binding.errorMsg.visibility = View.VISIBLE
-        binding.errorMsg.text = requireActivity().getString(R.string.error_message_Network)
+        val errorMsg = requireActivity().getString(R.string.error_message_Network)
+        if (isCharacterDataLoaded || isSearchDataLoaded ||  isOnSearch) {
+            if (!isToastOpened){
+                requireActivity().toast(errorMsg)
+                makeDelayAfterToastToShowNext()
+            }
+            isToastOpened = true
+        } else {
+            binding.errorMsg.visibility = View.VISIBLE
+            binding.errorMsg.text = errorMsg
+        }
+
     }
 
     private fun handleRequestError() {
         binding.avi.smoothToHide()
-        binding.errorMsg.visibility = View.VISIBLE
-        binding.errorMsg.text = requireActivity().getString(R.string.error_message_Request)
+        val errorMsg = requireActivity().getString(R.string.error_message_Request)
+        if (isCharacterDataLoaded || isSearchDataLoaded ||  isOnSearch ) {
+            if (!isToastOpened){
+                requireActivity().toast(errorMsg)
+                makeDelayAfterToastToShowNext()
+            }
+            isToastOpened = true
+        } else {
+            binding.errorMsg.visibility = View.VISIBLE
+            binding.errorMsg.text = errorMsg
+        }
     }
 
-    // for getting data and make actions on it
+
+
+    fun requestAllCharactersData(page: Int) {
+        if (isOnline(requireActivity())) {
+            observeAllCharactersLiveData(page)
+        } else {
+            handleErrorNetworkState()
+        }
+
+    }
+
+    private fun requestSearchData(query: String) {
+        if (isOnline(requireActivity())) {
+            observeSearchResultLiveData(query)
+        } else {
+            handleErrorNetworkState()
+        }
+
+    }
+
+    // for getting data from api
     private fun observeAllCharactersLiveData(page: Int) {
         viewModel.fetchAllCharacters(
             Config.PUBLIC_KEY_VALUE,
-            Config.HASH_Value,
+            hash,
             Config.TIMESTAMP_Value,
             page.toString()
         )
 
+        lastHitPage = page
         viewModel.result.observe(viewLifecycleOwner) {
             when (it) {
                 ApiResult.Loading -> {
@@ -303,16 +415,22 @@ class HomeListFragment : Fragment(),
                 }
                 is ApiResult.Error -> {
                     handleRequestError()
-                    Timber.d("DEBUERROR error")
+
                 }
                 is ApiResult.Success -> {
                     endLoading()
                     queryPageSize = it.data.data.limit
+                    isCharacterDataLoaded = true
+                    isOnNetworkError = false
+
                     when {
                         it.data.data.offset < it.data.data.total -> {
 
-                            mAdapter.addToCurrentList(it.data.data.results)
-                            loadingPage++
+                            if (loadingPage == it.data.data.offset) {
+                                mAdapter.addToCurrentList(it.data.data.results)
+                                loadingPage++
+                            }
+
                         }
                         else -> {
                             isScrolling = false
@@ -330,14 +448,12 @@ class HomeListFragment : Fragment(),
         }
     }
 
-    override fun onCharacterItemSelected(position: Int, item: CharacterResult) {
-        goToCharacterDetails(item)
-    }
+
 
     private fun observeSearchResultLiveData(query: String) {
         viewModel.fetchCharactersDataForSearch(
             Config.PUBLIC_KEY_VALUE,
-            Config.HASH_Value,
+            hash,
             Config.TIMESTAMP_Value,
             query
         )
@@ -351,6 +467,7 @@ class HomeListFragment : Fragment(),
                     handleRequestError()
                 }
                 is ApiResult.Success -> {
+                    isSearchDataLoaded
                     initSearchRecyclerView()
                     mSearchAdapter.submitList(it.data.data.results)
                     mSearchAdapter.filter.filter(query)
@@ -368,18 +485,8 @@ class HomeListFragment : Fragment(),
         }
     }
 
-    override fun onSearchItemSelected(position: Int, item: CharacterResult) {
-        goToCharacterDetails(item)
-    }
 
-    private fun goToCharacterDetails(item: CharacterResult) {
-        if (isSearchOpened) changeToolbarOnCancelSearch()
-        val action =
-            HomeListFragmentDirections.actionGoToDetails(
-                item
-            )
-        findNavController().navigate(action)
-    }
+
 
 
 }

@@ -1,10 +1,10 @@
 package com.amin.marvelcharcaters.utils.extensions
 
+import android.content.Context
 import android.content.res.AssetManager
-import androidx.appcompat.widget.SearchView
+import android.widget.Toast
 import com.amin.marvelcharcaters.model.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+
 
 fun AssetManager.readFile(fileName: String) = open(fileName)
     .bufferedReader()
@@ -31,21 +31,13 @@ fun EventsResult.getImage(path:String,extension: String):String{
     return "https"+path.substring(4)+"."+extension
 }
 
-fun SearchView.getQueryTextChangeStateFlow(): StateFlow<String> {
+fun Context.toast(message: CharSequence) =
+    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
-    val query = MutableStateFlow("")
+fun Context.getString(id: Int) =
+    this.getString(id)
 
-    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-        override fun onQueryTextSubmit(query: String?): Boolean {
-            return true
-        }
+fun Context.toastFromResource(resourceID:Int) =
+    Toast.makeText(this, this.getString(resourceID), Toast.LENGTH_SHORT).show()
 
-        override fun onQueryTextChange(newText: String): Boolean {
-            query.value = newText
-            return true
-        }
-    })
 
-    return query
-
-}
