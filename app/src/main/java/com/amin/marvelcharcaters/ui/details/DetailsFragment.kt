@@ -15,13 +15,10 @@ import com.amin.marvelcharcaters.adapter.DetailsContentRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentDetailsBinding
 import com.amin.marvelcharcaters.model.*
 import com.amin.marvelcharcaters.utils.Config
+import com.amin.marvelcharcaters.utils.Helper
 import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.marvelcharcaters.utils.extensions.getImage
-import com.amin.marvelcharcaters.utils.extensions.readFile
 import com.bumptech.glide.Glide
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -32,30 +29,26 @@ class DetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var result: CharacterResult? = null
-    lateinit var mAdapter: DetailsContentRecyclerAdapter
+    private lateinit var mAdapter: DetailsContentRecyclerAdapter
 
-    var mainList = mutableListOf<NestedItem>()
-    var comics = mutableListOf<PosterItem>()
-    var stories = mutableListOf<PosterItem>()
-    var series = mutableListOf<PosterItem>()
-    var events = mutableListOf<PosterItem>()
+    private var mainList = mutableListOf<NestedItem>()
+    private var comics = mutableListOf<PosterItem>()
+    private var stories = mutableListOf<PosterItem>()
+    private var series = mutableListOf<PosterItem>()
+    private var events = mutableListOf<PosterItem>()
 
-    var comicsSize = 0
-    var comicsCount = 0
-    var  storiesSize = 0
-    var storiesCount = 0
-    var seriesSize = 0
-    var  seriesCount = 0
-    var  eventsSize = 0
-    var eventsCount = 0
+    private var comicsSize = 0
+    private var comicsCount = 0
+    private var  storiesSize = 0
+    private var storiesCount = 0
+    private var seriesSize = 0
+    private var  seriesCount = 0
+    private var  eventsSize = 0
+    private var eventsCount = 0
 
 
     @VisibleForTesting
     val viewModel: DetailsViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,7 +73,7 @@ class DetailsFragment : Fragment() {
                 it
             ).character
             binding.characterTitle.text = result?.name
-            var image = result?.getImage(result!!.thumbnail.path, result!!.thumbnail.extension)
+            val image = result?.getImage(result!!.thumbnail.path, result!!.thumbnail.extension)
 
             Glide.with(binding.root.context)
                 .load(image)
@@ -91,7 +84,11 @@ class DetailsFragment : Fragment() {
             }
 
 
-            requestResources(result)
+            if (Helper.isOnline(requireActivity())){
+                requestResources(result)
+            }else{
+                handleErrorNetworkState()
+            }
         }
 
         binding.backContainer.setOnClickListener { findNavController().popBackStack() }
@@ -100,12 +97,57 @@ class DetailsFragment : Fragment() {
 
     }
 
+    // for views setup
     private fun initRecyclerView() {
-        println("DEBUG in init")
         binding.detailsRV.apply {
             layoutManager = LinearLayoutManager(requireActivity())
             mAdapter = DetailsContentRecyclerAdapter()
             adapter = mAdapter
+        }
+    }
+
+    private fun startLoading(){
+        binding.avi.smoothToShow()
+    }
+
+    private fun endLoading(){
+        binding.avi.hide()
+    }
+
+    private fun handleErrorNetworkState(){
+        binding.avi.smoothToHide()
+        binding.errorMsg.visibility = View.VISIBLE
+        binding.errorMsg.text = requireActivity().getString(R.string.error_message_Network)
+    }
+
+    private fun handleRequestError(){
+        binding.avi.smoothToHide()
+        binding.errorMsg.visibility = View.VISIBLE
+        binding.errorMsg.text = requireActivity().getString(R.string.error_message_Request)
+    }
+
+    // for getting data
+    private fun requestResources(result:CharacterResult?){
+        for (item in result?.comics?.items!!){
+            comicsSize = result.comics.items.size
+            observeComicResourceData(item.name,item.resourceURI)
+        }
+
+        for (item in result.stories.items){
+            storiesSize = result.stories.items.size
+            observeResourceData(Config.STORIES_TYPE,item.name,item.resourceURI)
+        }
+
+        for (item in result.events.items){
+            eventsSize = result.events.items.size
+            observeResourceData(Config.EVENTS_TYPE,item.name,item.resourceURI)
+
+        }
+
+        for (item in result.series.items){
+            seriesSize = result.series.items.size
+            observeResourceData(Config.SERIES_TYPE,item.name,item.resourceURI)
+
         }
     }
 
@@ -114,20 +156,20 @@ class DetailsFragment : Fragment() {
             url,
             Config.PUBLIC_KEY_VALUE,
             Config.HASH_Value,
-            Config.TIMESTAMP_Value.toString()
+            Config.TIMESTAMP_Value
         )
 
         viewModel.result.observe(viewLifecycleOwner) {
             when (it) {
                 ApiResult.Loading -> {
-
+                    startLoading()
                 }
                 is ApiResult.Error -> {
-
+                    handleRequestError()
 
                 }
                 is ApiResult.Success -> {
-
+                    endLoading()
                     when(type){
                         Config.EVENTS_TYPE ->{
                             eventsCount++
@@ -166,6 +208,7 @@ class DetailsFragment : Fragment() {
 
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
             if (it) {
+                handleErrorNetworkState()
 
             }
         }
@@ -176,19 +219,21 @@ class DetailsFragment : Fragment() {
             url,
             Config.PUBLIC_KEY_VALUE,
             Config.HASH_Value,
-            Config.TIMESTAMP_Value.toString()
+            Config.TIMESTAMP_Value
         )
 
         viewModel.resultComics.observe(viewLifecycleOwner) {
             when (it) {
                 ApiResult.Loading -> {
-
+                    startLoading()
                 }
                 is ApiResult.Error -> {
 
+                    handleRequestError()
 
                 }
                 is ApiResult.Success -> {
+                    endLoading()
                     comicsCount++
                     comics.add(PosterItem(title,it.data.data.results[0].thumbnail.path+"."+it.data.data.results[0].thumbnail.extension))
                     if (comics.isNotEmpty() && comicsSize==comicsCount){
@@ -203,89 +248,9 @@ class DetailsFragment : Fragment() {
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
             if (it) {
 
+                handleErrorNetworkState()
             }
         }
-    }
-
-    private fun requestResources(result:CharacterResult?){
-        for (item in result?.comics?.items!!){
-            comicsSize = result?.comics?.items!!.size
-            observeComicResourceData(item.name,item.resourceURI)
-        }
-
-        for (item in result?.stories?.items!!){
-            storiesSize = result?.stories?.items!!.size
-            observeResourceData(Config.STORIES_TYPE,item.name,item.resourceURI)
-        }
-
-        for (item in result?.events?.items!!){
-            eventsSize = result?.events?.items!!.size
-            observeResourceData(Config.EVENTS_TYPE,item.name,item.resourceURI)
-
-        }
-
-        for (item in result?.series?.items!!){
-            seriesSize = result?.series?.items!!.size
-            observeResourceData(Config.SERIES_TYPE,item.name,item.resourceURI)
-
-        }
-    }
-
-    // for offline data read
-    fun getOfflineDataComic(): ComicResponse? {
-        val charactersJsonResponseToString = requireActivity().assets.readFile("comic.json")
-
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<ComicResponse> =
-            moshi.adapter<ComicResponse>(ComicResponse::class.java)
-
-        val response: ComicResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
-        System.out.println("DEBUGA : moshi : $response")
-        return response
-    }
-
-    fun getOfflineDataSeries(): SeriesResponse? {
-        val charactersJsonResponseToString = requireActivity().assets.readFile("series.json")
-
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<SeriesResponse> =
-            moshi.adapter<SeriesResponse>(SeriesResponse::class.java)
-
-        val response: SeriesResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
-        System.out.println("DEBUGB : moshi : $response")
-        return response
-    }
-
-    fun getOfflineDataStories(): StoriesResponse? {
-        val charactersJsonResponseToString = requireActivity().assets.readFile("stories.json")
-
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<StoriesResponse> =
-            moshi.adapter<StoriesResponse>(StoriesResponse::class.java)
-
-        val response: StoriesResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
-        System.out.println("DEBUGC : moshi : $response")
-        return response
-    }
-
-    fun getOfflineDataEvents(): EventsResponse? {
-        val charactersJsonResponseToString = requireActivity().assets.readFile("events.json")
-
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<EventsResponse> =
-            moshi.adapter<EventsResponse>(EventsResponse::class.java)
-
-        val response: EventsResponse? = jsonAdapter.fromJson(charactersJsonResponseToString)
-        System.out.println("DEBUGD : moshi : $response")
-        return response
     }
 
 
