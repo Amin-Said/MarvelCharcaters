@@ -1,15 +1,14 @@
 package com.amin.marvelcharcaters.ui.home
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.SearchView
+import android.widget.*
 import androidx.annotation.VisibleForTesting
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -18,17 +17,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.adapter.CharactersRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentHomeListBinding
-import com.amin.marvelcharcaters.model.*
+import com.amin.marvelcharcaters.model.CharacterResult
 import com.amin.marvelcharcaters.utils.Config
 import com.amin.marvelcharcaters.utils.Helper.isOnline
 import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.taskdemo.SearchRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
+import kotlin.coroutines.CoroutineContext
+
 
 @AndroidEntryPoint
 class HomeListFragment : Fragment(),
-    CharactersRecyclerAdapter.Interaction, SearchRecyclerAdapter.Interaction {
+    CharactersRecyclerAdapter.Interaction, SearchRecyclerAdapter.Interaction, CoroutineScope {
 
     private var _binding: FragmentHomeListBinding? = null
     private val binding get() = _binding!!
@@ -45,6 +48,13 @@ class HomeListFragment : Fragment(),
     var queryPageSize = 20
     var loadingPage = 0
 
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
+    private lateinit var job: Job
+
+    val query = MutableStateFlow("")
+    private var lastQuery = ""
 
     @VisibleForTesting
     val viewModel: HomeListViewModel by viewModels()
@@ -90,16 +100,12 @@ class HomeListFragment : Fragment(),
         return binding.root
     }
 
-    override fun onDestroyView() {
-
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         loadingPage = 0
+
+        job = Job()
 
         setupViewForAppBarCustomization()
 
@@ -117,15 +123,30 @@ class HomeListFragment : Fragment(),
 
         handleSearchQuery()
 
-        if (isOnline(requireActivity())){
+        if (isOnline(requireActivity())) {
             observeAllCharactersLiveData(loadingPage)
-        }else{
+        } else {
             handleErrorNetworkState()
         }
 
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (isSearchOpened){
+            changeToolbarOnCancelSearch()
+        }
+    }
+
+    override fun onDestroyView() {
+        job.cancel()
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+    // for setup RecyclerViews
     private fun initRecyclerView() {
         binding.charactersRV.apply {
             layoutManager = LinearLayoutManager(requireActivity())
@@ -144,14 +165,32 @@ class HomeListFragment : Fragment(),
         }
     }
 
-
     // for other views setup
-    private fun startLoading(){
+    private fun startLoading() {
         binding.avi.smoothToShow()
     }
 
-    private fun endLoading(){
+    private fun endLoading() {
         binding.avi.hide()
+    }
+
+    private fun makeBlurBackGroundOnSearch() {
+        try {
+            binding.blurBehindLayout.visibility = View.VISIBLE
+            binding.blurBehindLayout.viewBehind = binding.toBlur
+        } catch (e: Exception) {
+            e.stackTrace
+        }
+
+    }
+
+    private fun removeBlurBackGroundOnCancelSearch() {
+        try {
+            binding.blurBehindLayout.visibility = View.GONE
+            binding.blurBehindLayout.viewBehind = null
+        } catch (e: Exception) {
+            e.stackTrace
+        }
     }
 
     private fun changeToolbarOnStartSearch() {
@@ -194,19 +233,19 @@ class HomeListFragment : Fragment(),
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
+                // this make the default cursor which appears on focus on search EditText appears
+                // only after writing words and not if there is no thing written
                 searchEditText.isCursorVisible = newText.isNotEmpty()
 
                 if (newText.trim().isNotEmpty()) {
-
-                    binding.blurBehindLayout.viewBehind = binding.toBlur
-                    binding.blurBehindLayout.visibility = View.VISIBLE
-
-                    observeSearchResultLiveData(newText)
+                    query.value = newText
+                    makeBlurBackGroundOnSearch()
+                    launch {
+                        handleQueryChanges()
+                    }
 
                 } else {
-                    binding.blurBehindLayout.visibility = View.GONE
-                    binding.blurBehindLayout.viewBehind = null
-
+                    removeBlurBackGroundOnCancelSearch()
                 }
 
                 return false
@@ -214,13 +253,35 @@ class HomeListFragment : Fragment(),
         })
     }
 
-    private fun handleErrorNetworkState(){
+    suspend fun handleQueryChanges() {
+        query.debounce(500)
+            .filter { query ->
+                return@filter query.isNotEmpty()
+            }
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .collect { saveQuery ->
+                if (lastQuery != saveQuery) {
+                    lastQuery = saveQuery
+                    observeSearchResultLiveData(saveQuery)
+                    resetLastQueryAfterTime()
+                }
+            }
+    }
+
+    private fun resetLastQueryAfterTime() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            lastQuery = ""
+        }, 500)
+    }
+
+    private fun handleErrorNetworkState() {
         binding.avi.smoothToHide()
         binding.errorMsg.visibility = View.VISIBLE
         binding.errorMsg.text = requireActivity().getString(R.string.error_message_Network)
     }
 
-    private fun handleRequestError(){
+    private fun handleRequestError() {
         binding.avi.smoothToHide()
         binding.errorMsg.visibility = View.VISIBLE
         binding.errorMsg.text = requireActivity().getString(R.string.error_message_Request)
@@ -273,7 +334,6 @@ class HomeListFragment : Fragment(),
         goToCharacterDetails(item)
     }
 
-
     private fun observeSearchResultLiveData(query: String) {
         viewModel.fetchCharactersDataForSearch(
             Config.PUBLIC_KEY_VALUE,
@@ -312,7 +372,7 @@ class HomeListFragment : Fragment(),
         goToCharacterDetails(item)
     }
 
-    private fun goToCharacterDetails(item: CharacterResult){
+    private fun goToCharacterDetails(item: CharacterResult) {
         if (isSearchOpened) changeToolbarOnCancelSearch()
         val action =
             HomeListFragmentDirections.actionGoToDetails(
