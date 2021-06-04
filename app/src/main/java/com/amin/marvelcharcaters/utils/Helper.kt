@@ -106,5 +106,9 @@ fun buildHighlightString(
         return false
     }
 
+    fun getHash():String{
+        return  md5(Config.TIMESTAMP_Value + Config.PRIVATE_KEY_VALUE + Config.PUBLIC_KEY_VALUE)
+    }
+
 
 }

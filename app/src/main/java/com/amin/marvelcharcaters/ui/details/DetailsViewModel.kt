@@ -3,7 +3,7 @@ package com.amin.marvelcharcaters.ui.details
 import android.accounts.NetworkErrorException
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import com.amin.marvelcharcaters.model.details.ComicResourceResponse
+import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.repository.DetailsRepository
 import com.amin.marvelcharcaters.utils.data.ApiResult
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +13,7 @@ import timber.log.Timber
 class DetailsViewModel @ViewModelInject constructor(
     private val repository: DetailsRepository
 ) : ViewModel() {
-    var result: LiveData<ApiResult<ComicResourceResponse>> = MutableLiveData()
+    var result: LiveData<ApiResult<ResourceResponse>> = MutableLiveData()
 
     var isNetworkError = MutableLiveData(false)
 

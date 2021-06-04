@@ -2,7 +2,7 @@ package com.amin.marvelcharcaters.repository
 
 import com.amin.marvelcharcaters.api.ApiClient
 import com.amin.marvelcharcaters.di.IODispatcher
-import com.amin.marvelcharcaters.model.details.ComicResourceResponse
+import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.marvelcharcaters.utils.data.DataSource
 import com.amin.marvelcharcaters.utils.extensions.getResult
@@ -26,14 +26,14 @@ class DetailsRepository @Inject constructor(
 
     override fun fetchResourceData(
         url: String, key: String, hash: String, timestamp: String
-    ): Flow<ApiResult<ComicResourceResponse>> = flow {
+    ): Flow<ApiResult<ResourceResponse>> = flow {
         emit(ApiResult.Loading)
         networkCall {
             apiClient.fetchResourceData(url, key, hash, timestamp)
         }.let {
             it.isSuccessAndNotNull().letOnTrueOnSuspend {
-                Timber.d("fetchResourceData apiResult : ${(it.getResult() as ComicResourceResponse).data}")
-                val response = (it.getResult() as ComicResourceResponse)
+                Timber.d("fetchResourceData apiResult : ${(it.getResult() as ResourceResponse).data}")
+                val response = (it.getResult() as ResourceResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
                 /* fake call */
@@ -52,7 +52,7 @@ interface DetailsRepositoryImpl {
         hash: String,
         timestamp: String,
         page: String
-    ): Flow<ApiResult<ComicResourceResponse>>
+    ): Flow<ApiResult<ResourceResponse>>
 
 
 }

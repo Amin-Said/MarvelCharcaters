@@ -1,7 +1,7 @@
 package com.amin.marvelcharcaters.api
 
 import com.amin.marvelcharcaters.model.CharacterResponse
-import com.amin.marvelcharcaters.model.details.ComicResourceResponse
+import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.utils.Config
 import retrofit2.Response
 import retrofit2.http.GET
@@ -31,6 +31,6 @@ interface ApiService {
         @Query(Config.KEY_PARAM) apiKey: String,
         @Query(Config.HASH_PARAM) hash: String,
         @Query(Config.TIMESTAMP_PARRAM) timestamp: String
-    ): Response<ComicResourceResponse>
+    ): Response<ResourceResponse>
 
 }

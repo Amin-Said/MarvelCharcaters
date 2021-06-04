@@ -16,6 +16,7 @@ import com.amin.marvelcharcaters.databinding.FragmentDetailsBinding
 import com.amin.marvelcharcaters.model.*
 import com.amin.marvelcharcaters.model.details.NestedItem
 import com.amin.marvelcharcaters.model.details.PosterItem
+import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.utils.Config
 import com.amin.marvelcharcaters.utils.Helper
 import com.amin.marvelcharcaters.utils.data.ApiResult
@@ -41,17 +42,17 @@ class DetailsFragment : Fragment() {
 
     private var comicsSize = 0
     private var comicsCount = 0
-    private var  storiesSize = 0
+    private var storiesSize = 0
     private var storiesCount = 0
     private var seriesSize = 0
-    private var  seriesCount = 0
-    private var  eventsSize = 0
+    private var seriesCount = 0
+    private var eventsSize = 0
     private var eventsCount = 0
 
+    private var totalRqeustsCount = 0
+
     private val hash =
-        Helper.md5(Config.TIMESTAMP_Value + Config.PRIVATE_KEY_VALUE + Config.PUBLIC_KEY_VALUE)
-
-
+        Helper.getHash()
 
     @VisibleForTesting
     val viewModel: DetailsViewModel by viewModels()
@@ -90,9 +91,9 @@ class DetailsFragment : Fragment() {
             }
 
 
-            if (Helper.isOnline(requireActivity())){
+            if (Helper.isOnline(requireActivity())) {
                 requestResources(result)
-            }else{
+            } else {
                 handleErrorNetworkState()
             }
         }
@@ -112,52 +113,55 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun startLoading(){
+    private fun startLoading() {
         binding.avi.smoothToShow()
     }
 
-    private fun endLoading(){
+    private fun endLoading() {
         binding.avi.hide()
     }
 
-    private fun handleErrorNetworkState(){
+    private fun handleErrorNetworkState() {
         binding.avi.smoothToHide()
         binding.errorMsg.visibility = View.VISIBLE
         binding.errorMsg.text = requireActivity().getString(R.string.error_message_Network)
     }
 
-    private fun handleRequestError(){
+    private fun handleRequestError() {
         binding.avi.smoothToHide()
         binding.errorMsg.visibility = View.VISIBLE
         binding.errorMsg.text = requireActivity().getString(R.string.error_message_Request)
     }
 
     // for getting data
-    private fun requestResources(result:CharacterResult?){
-        for (item in result?.comics?.items!!){
-            comicsSize = result.comics.items.size
-            observeResourceData(Config.COMIC_TYPE,item.name,item.resourceURI)
+    private fun requestResources(result: CharacterResult?) {
+        comicsSize = result?.comics?.items?.size!!
+        storiesSize = result?.stories?.items?.size!!
+        eventsSize = result?.events?.items?.size
+        seriesSize = result?.series?.items?.size
+
+        totalRqeustsCount = comicsSize+storiesSize+eventsSize+seriesSize
+
+        for (item in result?.comics?.items!!) {
+            observeResourceData(Config.COMIC_TYPE, item.name, item.resourceURI)
         }
 
-        for (item in result.stories.items){
-            storiesSize = result.stories.items.size
-            observeResourceData(Config.STORIES_TYPE,item.name,item.resourceURI)
+        for (item in result.stories.items) {
+            observeResourceData(Config.STORIES_TYPE, item.name, item.resourceURI)
         }
 
-        for (item in result.events.items){
-            eventsSize = result.events.items.size
-            observeResourceData(Config.EVENTS_TYPE,item.name,item.resourceURI)
+        for (item in result.events.items) {
+            observeResourceData(Config.EVENTS_TYPE, item.name, item.resourceURI)
 
         }
 
-        for (item in result.series.items){
-            seriesSize = result.series.items.size
-            observeResourceData(Config.SERIES_TYPE,item.name,item.resourceURI)
+        for (item in result.series.items) {
+            observeResourceData(Config.SERIES_TYPE, item.name, item.resourceURI)
 
         }
     }
 
-    private fun observeResourceData(type :String,title:String ,url: String) {
+    private fun observeResourceData(type: String, title: String, url: String) {
         viewModel.fetchResourceData(
             url,
             Config.PUBLIC_KEY_VALUE,
@@ -172,48 +176,46 @@ class DetailsFragment : Fragment() {
                 }
                 is ApiResult.Error -> {
                     handleRequestError()
-
                 }
                 is ApiResult.Success -> {
-                    endLoading()
-                    when(type){
-                        Config.COMIC_TYPE ->{
+                    totalRqeustsCount--
+                    when (type) {
+                        Config.COMIC_TYPE -> {
                             comicsCount++
-                            comics.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
-                            if (comics.isNotEmpty() && comicsSize==comicsCount){
-                                mainList.add(NestedItem(Config.COMIC_TYPE,comics))
-                                mAdapter.submitList(mainList)
+                            comics.add(getPosterItem(title,it.data))
+                            if (comics.isNotEmpty() && comicsSize == comicsCount) {
+                                addResourceItemToTheList(Config.COMIC_TYPE, comics)
                             }
                         }
-                        Config.EVENTS_TYPE ->{
+
+                        Config.EVENTS_TYPE -> {
                             eventsCount++
-                            events.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
-                            if (events.isNotEmpty() && eventsSize==eventsCount){
-                                mainList.add(NestedItem(Config.EVENTS_TYPE,events))
-                                mAdapter.submitList(mainList)
+                            events.add(getPosterItem(title,it.data))
+                            if (events.isNotEmpty() && eventsSize == eventsCount) {
+                                addResourceItemToTheList(Config.EVENTS_TYPE, events)
                             }
                         }
-                        Config.STORIES_TYPE ->{
-                            stories.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
+
+                        Config.STORIES_TYPE -> {
+                            stories.add(getPosterItem(title,it.data))
                             storiesCount++
-                            stories.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
-                            if (stories.isNotEmpty() && storiesSize==storiesCount){
-                                mainList.add(NestedItem(Config.STORIES_TYPE,stories))
-                                mAdapter.submitList(mainList)
+                            if (stories.isNotEmpty() && storiesSize == storiesCount) {
+                                addResourceItemToTheList(Config.STORIES_TYPE, stories)
                             }
-
                         }
-                        Config.SERIES_TYPE ->{
-                            series.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
+
+                        Config.SERIES_TYPE -> {
+                            series.add(getPosterItem(title,it.data))
                             seriesCount++
-                            series.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
-                            if (series.isNotEmpty() && seriesSize==seriesCount){
-                                mainList.add(NestedItem(Config.SERIES_TYPE,series))
-                                mAdapter.submitList(mainList)
+                            if (series.isNotEmpty() && seriesSize == seriesCount) {
+                                addResourceItemToTheList(Config.SERIES_TYPE,series)
                             }
-
                         }
 
+                    }
+                    if (totalRqeustsCount==0){
+                        endLoading()
+                        binding.detailsRV.visibility = View.VISIBLE
                     }
                 }
             }
@@ -223,9 +225,22 @@ class DetailsFragment : Fragment() {
         viewModel.isNetworkError.observe(viewLifecycleOwner) {
             if (it) {
                 handleErrorNetworkState()
-
             }
         }
+
+
+    }
+    private fun addResourceItemToTheList(title:String, itemsList:List<PosterItem>){
+        mainList.add(NestedItem(title, itemsList))
+        mAdapter.submitList(mainList)
+    }
+
+    fun getPosterItem(title:String , response:ResourceResponse):PosterItem{
+        return  PosterItem(
+            title,
+            response.data.results[0].thumbnail?.path + "." + response.data.results[0].thumbnail?.extension
+        )
     }
 
 }
+

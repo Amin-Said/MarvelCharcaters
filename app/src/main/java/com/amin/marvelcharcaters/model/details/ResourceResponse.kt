@@ -2,7 +2,7 @@ package com.amin.marvelcharcaters.model.details
 
 import com.amin.marvelcharcaters.model.*
 
-data class ComicResourceResponse(
+data class ResourceResponse(
     val attributionHTML: String,
     val attributionText: String,
     val code: Int,

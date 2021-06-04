@@ -5,7 +5,6 @@ import android.content.res.AssetManager
 import android.widget.Toast
 import com.amin.marvelcharcaters.model.*
 
-
 fun AssetManager.readFile(fileName: String) = open(fileName)
     .bufferedReader()
     .use { it.readText() }

@@ -63,7 +63,7 @@ class HomeListFragment : Fragment(),
     private var lastHitPage = 0
 
     private val hash =
-        Helper.md5(Config.TIMESTAMP_Value + Config.PRIVATE_KEY_VALUE + Config.PUBLIC_KEY_VALUE)
+        Helper.getHash()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
