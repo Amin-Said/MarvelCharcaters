@@ -93,11 +93,11 @@
         android:id="@+id/errorMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_from_borders"
+        android:layout_marginBottom="@dimen/space_from_bottom_in_details_screen"
         android:text="@string/error_message_Network"
         android:textColor="@color/white"
         android:textSize="@dimen/error_font_size"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/avi"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

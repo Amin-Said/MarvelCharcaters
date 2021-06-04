@@ -12,7 +12,11 @@
         tools:layout="@layout/fragment_home_list" >
         <action
             android:id="@+id/actionGoToDetails"
-            app:destination="@id/detailsFragment" />
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
+            app:popEnterAnim="@anim/from_right"
+            app:popExitAnim="@anim/to_left" />
     </fragment>
     <fragment
         android:id="@+id/detailsFragment"
@@ -22,6 +26,8 @@
         <action
             android:id="@+id/actionGetBackToDetails"
             app:destination="@id/homeListFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
             app:popUpTo="@+id/homeListFragment"/>
         <argument
             android:name="character?"

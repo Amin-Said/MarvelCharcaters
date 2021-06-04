@@ -8,6 +8,8 @@
     <dimen name="space_from_top_details_title">16dp</dimen>
     <dimen name="space_from_home_loading_bottom">16dp</dimen>
     <dimen name="space_from_top_description_title">16dp</dimen>
+    <dimen name="space_from_bottom_in_details_screen">20dp</dimen>
+
 
 
     <dimen name="card_view_margin">6dp</dimen>
