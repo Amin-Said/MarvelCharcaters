@@ -121,8 +121,6 @@ class DetailsFragment : Fragment() {
         val radius = resources.getDimension(R.dimen.appBar_radius)
         binding.characterImage.shapeAppearanceModel = binding.characterImage.shapeAppearanceModel
             .toBuilder()
-            .setTopRightCorner(CornerFamily.ROUNDED, radius)
-            .setTopLeftCorner(CornerFamily.ROUNDED, radius)
             .setBottomLeftCorner(CornerFamily.ROUNDED, radius)
             .setBottomRightCorner(CornerFamily.ROUNDED, radius)
             .build()
