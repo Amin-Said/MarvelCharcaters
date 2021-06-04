@@ -14,6 +14,4 @@ class ApiClient @Inject constructor(
     suspend fun fetchResourceData(url:String,key: String, hash: String,timestamp: String) =
         apiService.fetchResourceData(url ,key, hash,timestamp)
 
-    suspend fun fetchComicResourceData(url:String,key: String, hash: String,timestamp: String) =
-        apiService.fetchComicResourceData(url ,key, hash,timestamp)
 }

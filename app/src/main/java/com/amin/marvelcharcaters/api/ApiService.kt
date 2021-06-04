@@ -1,8 +1,7 @@
 package com.amin.marvelcharcaters.api
 
-import com.amin.marvelcharcaters.model.BaseResponse
 import com.amin.marvelcharcaters.model.CharacterResponse
-import com.amin.marvelcharcaters.model.comicresource.ComicResourceResponse
+import com.amin.marvelcharcaters.model.details.ComicResourceResponse
 import com.amin.marvelcharcaters.utils.Config
 import retrofit2.Response
 import retrofit2.http.GET
@@ -28,14 +27,6 @@ interface ApiService {
 
     @GET
     suspend fun fetchResourceData(
-        @Url url: String,
-        @Query(Config.KEY_PARAM) apiKey: String,
-        @Query(Config.HASH_PARAM) hash: String,
-        @Query(Config.TIMESTAMP_PARRAM) timestamp: String
-    ): Response<BaseResponse>
-
-    @GET
-    suspend fun fetchComicResourceData(
         @Url url: String,
         @Query(Config.KEY_PARAM) apiKey: String,
         @Query(Config.HASH_PARAM) hash: String,

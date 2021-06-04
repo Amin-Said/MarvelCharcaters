@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amin.marvelcharcaters.databinding.DetailsContentItemBinding
-import com.amin.marvelcharcaters.model.NestedItem
+import com.amin.marvelcharcaters.model.details.NestedItem
 
 class DetailsContentRecyclerAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {

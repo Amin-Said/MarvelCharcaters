@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.PostersItemBinding
-import com.amin.marvelcharcaters.model.PosterItem
+import com.amin.marvelcharcaters.model.details.PosterItem
 import com.bumptech.glide.Glide
 
 class PostersRecyclerAdapter() :

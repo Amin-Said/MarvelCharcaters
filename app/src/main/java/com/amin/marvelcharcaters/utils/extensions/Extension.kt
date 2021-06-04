@@ -15,22 +15,6 @@ fun CharacterResult.getImage(path:String,extension: String):String{
      return "https"+path.substring(4)+"."+extension
 }
 
-fun BaseResult.getImage(path:String,extension: String):String{
-    return "https"+path.substring(4)+"."+extension
-}
-
-fun StoriesResult.getImage(path:String,extension: String):String{
-    return "https"+path.substring(4)+"."+extension
-}
-
-fun SeriesResult.getImage(path:String,extension: String):String{
-    return "https"+path.substring(4)+"."+extension
-}
-
-fun EventsResult.getImage(path:String,extension: String):String{
-    return "https"+path.substring(4)+"."+extension
-}
-
 fun Context.toast(message: CharSequence) =
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 

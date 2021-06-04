@@ -14,6 +14,8 @@ import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.adapter.DetailsContentRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentDetailsBinding
 import com.amin.marvelcharcaters.model.*
+import com.amin.marvelcharcaters.model.details.NestedItem
+import com.amin.marvelcharcaters.model.details.PosterItem
 import com.amin.marvelcharcaters.utils.Config
 import com.amin.marvelcharcaters.utils.Helper
 import com.amin.marvelcharcaters.utils.data.ApiResult
@@ -134,7 +136,7 @@ class DetailsFragment : Fragment() {
     private fun requestResources(result:CharacterResult?){
         for (item in result?.comics?.items!!){
             comicsSize = result.comics.items.size
-            observeComicResourceData(item.name,item.resourceURI)
+            observeResourceData(Config.COMIC_TYPE,item.name,item.resourceURI)
         }
 
         for (item in result.stories.items){
@@ -175,6 +177,14 @@ class DetailsFragment : Fragment() {
                 is ApiResult.Success -> {
                     endLoading()
                     when(type){
+                        Config.COMIC_TYPE ->{
+                            comicsCount++
+                            comics.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
+                            if (comics.isNotEmpty() && comicsSize==comicsCount){
+                                mainList.add(NestedItem(Config.COMIC_TYPE,comics))
+                                mAdapter.submitList(mainList)
+                            }
+                        }
                         Config.EVENTS_TYPE ->{
                             eventsCount++
                             events.add(PosterItem(title,it.data.data.results[0].thumbnail?.path+"."+it.data.data.results[0].thumbnail?.extension))
@@ -217,46 +227,5 @@ class DetailsFragment : Fragment() {
             }
         }
     }
-
-    private fun observeComicResourceData(title:String ,url: String) {
-        viewModel.fetchComicResourceData(
-            url,
-            Config.PUBLIC_KEY_VALUE,
-            hash,
-            Config.TIMESTAMP_Value
-        )
-
-        viewModel.resultComics.observe(viewLifecycleOwner) {
-            when (it) {
-                ApiResult.Loading -> {
-                    startLoading()
-                }
-                is ApiResult.Error -> {
-
-                    handleRequestError()
-
-                }
-                is ApiResult.Success -> {
-                    endLoading()
-                    comicsCount++
-                    comics.add(PosterItem(title,it.data.data.results[0].thumbnail.path+"."+it.data.data.results[0].thumbnail.extension))
-                    if (comics.isNotEmpty() && comicsSize==comicsCount){
-                        mainList.add(NestedItem(Config.COMIC_TYPE,comics))
-                        mAdapter.submitList(mainList)
-                    }
-                }
-            }
-
-        }
-
-        viewModel.isNetworkError.observe(viewLifecycleOwner) {
-            if (it) {
-
-                handleErrorNetworkState()
-            }
-        }
-    }
-
-
 
 }

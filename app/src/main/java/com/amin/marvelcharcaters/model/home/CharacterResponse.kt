@@ -4,41 +4,41 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class StoriesResponse(
+data class CharacterResponse(
     val attributionHTML: String,
     val attributionText: String,
     val code: Int,
     val copyright: String,
-    val `data`: DetailsData,
+    val `data`: Data,
     val etag: String,
     val status: String
 ): Parcelable
 
+
 @Parcelize
-data class StoriesResult(
-    val characters: Characters,
+data class Data(
+    val count: Int,
+    val limit: Int,
+    val offset: Int,
+    val results: List<CharacterResult>,
+    val total: Int
+): Parcelable
+
+@Parcelize
+data class CharacterResult(
     val comics: Comics,
-    val creators: Creators,
     val description: String,
     val events: Events,
     val id: Int,
     val modified: String,
-    val originalIssue: OriginalIssue,
+    val name: String,
     val resourceURI: String,
     val series: Series,
+    val stories: Stories,
     val thumbnail: Thumbnail,
-    val title: String,
-    val type: String
+    val urls: List<Url>
 ): Parcelable
 
-@Parcelize
-data class StoriesData(
-    val count: Int,
-    val limit: Int,
-    val offset: Int,
-    val results: List<BaseResult>,
-    val total: Int
-): Parcelable
 
 
 

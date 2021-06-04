@@ -1,4 +1,4 @@
-package com.amin.marvelcharcaters.model
+package com.amin.marvelcharcaters.model.details
 
 data class NestedItem(
     val requestedTitle: String,
