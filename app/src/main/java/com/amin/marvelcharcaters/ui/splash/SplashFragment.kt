@@ -8,7 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.FragmentSplashBinding
+import com.amin.marvelcharcaters.utils.Helper
+import com.amin.marvelcharcaters.utils.extensions.toastFromResource
 
 class SplashFragment : Fragment() {
 
@@ -25,10 +28,13 @@ class SplashFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        goToHome()
+    override fun onResume() {
+        super.onResume()
+        if (Helper.isOnline(requireActivity())) {
+            goToHome()
+        } else {
+            requireActivity().toastFromResource(R.string.error_message_Network)
+        }
 
     }
 
@@ -39,6 +45,6 @@ class SplashFragment : Fragment() {
             findNavController().navigate(action)
 //            findNavController().popBackStack()
 
-        }, 3000)
+        }, 2000)
     }
 }

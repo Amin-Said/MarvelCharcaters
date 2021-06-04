@@ -23,6 +23,7 @@ import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.marvelcharcaters.utils.data.ApiResult.*
 import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
+import com.google.android.material.shape.CornerFamily
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -73,8 +74,12 @@ class DetailsFragment : Fragment() {
         _binding = null
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // to make radis in bottom of header image
+        setImageHeaderRadius()
 
         arguments?.let {
             result = DetailsFragmentArgs.fromBundle(
@@ -112,6 +117,18 @@ class DetailsFragment : Fragment() {
     }
 
     // for views setup
+    private fun setImageHeaderRadius(){
+        val radius = resources.getDimension(R.dimen.appBar_radius)
+        binding.characterImage.shapeAppearanceModel = binding.characterImage.shapeAppearanceModel
+            .toBuilder()
+            .setTopRightCorner(CornerFamily.ROUNDED, radius)
+            .setTopLeftCorner(CornerFamily.ROUNDED, radius)
+            .setBottomLeftCorner(CornerFamily.ROUNDED, radius)
+            .setBottomRightCorner(CornerFamily.ROUNDED, radius)
+            .build()
+
+    }
+
     private fun initRecyclerView() {
         binding.detailsRV.apply {
             layoutManager = LinearLayoutManager(requireActivity())
@@ -185,7 +202,11 @@ class DetailsFragment : Fragment() {
                     startLoading()
                 }
                 is Error -> {
-                    handleRequestError()
+                    totalRqeustsCount--
+                    if (totalRqeustsCount==0){
+                        endLoading()
+                        handleRequestError()
+                    }
                 }
                 is Success -> {
                     totalRqeustsCount--

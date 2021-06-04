@@ -15,12 +15,12 @@
         android:id="@+id/background_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/mcu_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@+id/characterImage" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.github.mmin18.widget.RealtimeBlurView
         android:layout_width="0dp"
@@ -33,7 +33,7 @@
         app:realtimeBlurRadius="20dp"
         app:realtimeOverlayColor="#CE000000" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/characterImage"
         android:layout_width="0dp"
         android:layout_height="@dimen/details_header_height"
