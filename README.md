@@ -2,6 +2,13 @@
 
 Find Your Marvel Hero :) An Android Application Displaying Marvel Characters, stories, Comics , Events , Series.  
 
+![ScreenShot](https://i.ibb.co/zHFPwXn/Screenshot-20210604-233953.png)
+![ScreenShot](https://i.ibb.co/DbXbxGb/Screenshot-20210604-234004.png)
+![ScreenShot](https://i.ibb.co/JpBL0bx/Screenshot-20210605-000301.png)
+
+![ScreenShot](https://i.ibb.co/z5QgScT/Screenshot-20210604-234050.png)
+![ScreenShot](https://i.ibb.co/WPLB0tq/Screenshot-20210605-000326.png)
+
 ## Android Development and Architecture
 - MVVM Architecture
 - Repository pattern
