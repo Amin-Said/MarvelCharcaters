@@ -51,7 +51,7 @@ class DetailsViewModelTest {
         viewModel = DetailsViewModel(repository)
     }
     @Test
-    fun fetchAllCharactersTest() = runBlocking {
+    fun fetchResourceDataTest() = runBlocking {
         val mockResponse = MockData.resourceResponse
 
         val observer: Observer<ApiResult<ResourceResponse>> = mock()

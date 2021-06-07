@@ -1,5 +1,6 @@
 package com.amin.marvelcharcaters.ui.home
 
+import android.animation.LayoutTransition
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -267,7 +268,7 @@ class HomeListFragment : Fragment(),
             e.stackTrace
         }
     }
-
+    
     private fun changeToolbarOnStartSearch() {
 
         isSearchOpened = true

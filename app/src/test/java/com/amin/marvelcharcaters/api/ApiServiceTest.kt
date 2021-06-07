@@ -5,12 +5,10 @@ import com.amin.marvelcharcaters.MockData
 import com.amin.marvelcharcaters.utils.ApiAbstract
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
-import junit.framework.Assert.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
-import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
