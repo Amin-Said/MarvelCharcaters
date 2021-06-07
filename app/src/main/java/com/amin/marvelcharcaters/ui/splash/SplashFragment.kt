@@ -25,6 +25,7 @@ class SplashFragment : Fragment() {
     ): View {
         _binding = FragmentSplashBinding.inflate(inflater, container, false)
 
+
         return binding.root
     }
 
@@ -39,10 +40,15 @@ class SplashFragment : Fragment() {
     }
 
     private fun goToHome(){
-        Handler(Looper.getMainLooper()).postDelayed({
-            val action =
-                SplashFragmentDirections.actionGoToHome()
-            findNavController().navigate(action)
-        }, 2000)
+        this@SplashFragment.apply {
+            Handler(Looper.getMainLooper()).postDelayed({
+                val action =
+                    SplashFragmentDirections.actionGoToHome()
+                if (isAdded){
+                    findNavController().navigate(action)
+                }
+            }, 3000)
+        }
+
     }
 }
