@@ -70,8 +70,6 @@ class ApiServiceTest: ApiAbstract<ApiService>(){
             MockData.query
         )
 
-        MatcherAssert.assertThat(20, CoreMatchers.`is`(25))
-
         response.body()?.data?.let { data ->
             MatcherAssert.assertThat(data.results.size, CoreMatchers.`is`(20))
             MatcherAssert.assertThat(data.results[0].name, CoreMatchers.`is`("3-D Man"))
@@ -96,8 +94,6 @@ class ApiServiceTest: ApiAbstract<ApiService>(){
             MockData.hash,
             MockData.timestamp
         )
-
-        MatcherAssert.assertThat(20, CoreMatchers.`is`(25))
 
         response.body()?.data?.let { data ->
             MatcherAssert.assertThat(data.results.size, CoreMatchers.`is`(1))
