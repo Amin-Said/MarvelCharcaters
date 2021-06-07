@@ -8,6 +8,9 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.BaseInterpolator
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.amin.marvelcharcaters.model.*
 
@@ -52,6 +55,7 @@ fun RecyclerView.ViewHolder.addAnimation(interpolator: BaseInterpolator, lastPos
     } else {
         this.itemView.visibility = View.VISIBLE
     }
+
 }
 
 

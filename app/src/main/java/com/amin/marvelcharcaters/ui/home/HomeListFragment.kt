@@ -204,7 +204,6 @@ class HomeListFragment : Fragment(),
         isCharacterDataLoaded = false
     }
 
-
     // for setup RecyclerViews
     private fun initCharactersRecyclerView() {
         binding.charactersRV.apply {
