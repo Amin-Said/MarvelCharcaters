@@ -1,13 +1,16 @@
 package com.amin.marvelcharcaters.adapter
 
+
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amin.marvelcharcaters.databinding.DetailsContentItemBinding
 import com.amin.marvelcharcaters.model.details.NestedItem
+import com.amin.marvelcharcaters.utils.extensions.addAnimation
 
 class DetailsContentRecyclerAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -69,6 +72,12 @@ class DetailsContentRecyclerAdapter() :
             item.list?.let { mAdapter.submitList(it) }
 
         }
+    }
+
+    var lastPosition = -1
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        holder.addAnimation(OvershootInterpolator(),lastPosition,300)
     }
 
 

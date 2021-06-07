@@ -3,11 +3,14 @@ package com.amin.marvelcharcaters.adapter
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.databinding.PostersItemBinding
 import com.amin.marvelcharcaters.model.details.PosterItem
+import com.amin.marvelcharcaters.utils.extensions.addAnimation
 import com.bumptech.glide.Glide
 
 class PostersRecyclerAdapter() :
@@ -69,6 +72,13 @@ class PostersRecyclerAdapter() :
 
 
         }
+    }
+
+    var lastPosition = -1
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        holder.addAnimation(AccelerateInterpolator(),lastPosition,300)
+
     }
 
 

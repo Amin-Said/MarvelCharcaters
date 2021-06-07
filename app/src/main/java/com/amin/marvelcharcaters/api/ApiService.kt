@@ -5,11 +5,13 @@ import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.utils.Config
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.Query
 import retrofit2.http.Url
 
 interface ApiService {
     @GET(Config.BASE_RETURN)
+    @Headers("Content-Type: application/json")
     suspend fun fetchCharactersDataForSearch(
         @Query(Config.KEY_PARAM) apiKey: String,
         @Query(Config.HASH_PARAM) hash: String,
@@ -18,6 +20,7 @@ interface ApiService {
     ): Response<CharacterResponse>
 
     @GET(Config.BASE_RETURN)
+    @Headers("Content-Type: application/json")
     suspend fun fetchAllCharacters(
         @Query(Config.KEY_PARAM) apiKey: String,
         @Query(Config.HASH_PARAM) hash: String,
@@ -26,6 +29,7 @@ interface ApiService {
     ): Response<CharacterResponse>
 
     @GET
+    @Headers("Content-Type: application/json")
     suspend fun fetchResourceData(
         @Url url: String,
         @Query(Config.KEY_PARAM) apiKey: String,

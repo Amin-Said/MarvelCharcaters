@@ -1,8 +1,14 @@
 package com.amin.marvelcharcaters.utils.extensions
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.res.AssetManager
+import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.BaseInterpolator
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 import com.amin.marvelcharcaters.model.*
 
 // to read from assets json files
@@ -23,5 +29,29 @@ fun Context.getString(id: Int) =
 
 fun Context.toastFromResource(resourceID:Int) =
     Toast.makeText(this, this.getString(resourceID), Toast.LENGTH_SHORT).show()
+
+fun RecyclerView.ViewHolder.addAnimation(interpolator: BaseInterpolator, lastPosition: Int, duration:Long){
+    var lastPosition = -1
+    val delayTime: Long = 200
+    this.itemView.visibility = View.INVISIBLE
+    if (this.layoutPosition > lastPosition) {
+        this.itemView.handler.postDelayed(Runnable {
+            this.itemView.visibility = View.VISIBLE
+            val alpha = ObjectAnimator.ofFloat(this.itemView, "alpha", 0f, 1f)
+            val scaleY =
+                ObjectAnimator.ofFloat(this.itemView, "scaleY", 0f, 1f)
+            val scaleX =
+                ObjectAnimator.ofFloat(this.itemView, "scaleX", 0f, 1f)
+            val animSet = AnimatorSet()
+            animSet.play(alpha).with(scaleY).with(scaleX)
+            animSet.interpolator = interpolator
+            animSet.duration = duration
+            animSet.start()
+        }, delayTime)
+        lastPosition = this.layoutPosition
+    } else {
+        this.itemView.visibility = View.VISIBLE
+    }
+}
 
 

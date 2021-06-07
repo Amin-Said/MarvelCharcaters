@@ -33,7 +33,6 @@ import com.amin.marvelcharcaters.utils.extensions.toastFromResource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
 
@@ -218,7 +217,9 @@ class HomeListFragment : Fragment(),
     }
 
     private fun initSearchRecyclerView() {
+
         binding.searchRV.apply {
+
             layoutManager = LinearLayoutManager(requireActivity())
             mSearchAdapter = SearchRecyclerAdapter(this@HomeListFragment)
             adapter = mSearchAdapter

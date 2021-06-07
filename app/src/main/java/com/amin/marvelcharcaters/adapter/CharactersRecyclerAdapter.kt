@@ -1,6 +1,5 @@
 package  com.amin.marvelcharcaters.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -9,7 +8,8 @@ import com.amin.marvelcharcaters.databinding.CharacterItemBinding
 import com.amin.marvelcharcaters.model.CharacterResult
 import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
-import java.util.ArrayList
+import java.util.*
+
 
 class CharactersRecyclerAdapter(private val interaction: Interaction? = null) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -75,4 +75,5 @@ class CharactersRecyclerAdapter(private val interaction: Interaction? = null) :
     interface Interaction {
         fun onCharacterItemSelected(position: Int, item: CharacterResult)
     }
+
 }
