@@ -10,12 +10,9 @@ import com.amin.marvelcharcaters.utils.extensions.isSuccessAndNotNull
 import com.amin.marvelcharcaters.utils.extensions.letOnFalseOnSuspend
 import com.amin.marvelcharcaters.utils.extensions.letOnTrueOnSuspend
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
-
-private const val FAKE_DELAY_TIME = 1500L
 
 class CharactersRepository @Inject constructor(
     private val apiClient: ApiClient,
@@ -38,8 +35,6 @@ class CharactersRepository @Inject constructor(
                 val response = (it.getResult() as CharacterResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
-                /* fake call */
-                //delay(FAKE_DELAY_TIME)
                 emit(ApiResult.Error(Exception("Unexpected error.")))
             }
         }
@@ -60,8 +55,6 @@ class CharactersRepository @Inject constructor(
                 val response = (it.getResult() as CharacterResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
-                /* fake call */
-                //delay(FAKE_DELAY_TIME)
                 emit(ApiResult.Error(Exception("Unexpected error.")))
             }
         }

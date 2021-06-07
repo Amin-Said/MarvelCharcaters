@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">شخصيات مارفل</string>
+    <string name="Search_Hint">ابحث عن شخصية ..</string>
+    <string name="description_title">الوصف</string>
+    <string name="description_not_available">معرفش اقولك ايه ولا ايه :)</string>
+    <string name="error_message_Network">عندك مشكلة فى الانترنت :(</string>
+    <string name="error_message_Request">فيه حاجة مش مظبوطة :(</string>
+    <string name="error_message_network_lost">اخبار وحشة النت فصل :(</string>
+
+    <string name="stories_title">قصص</string>
+    <string name="series_title">سلاسل مجلات</string>
+    <string name="events_title">أحداث</string>
+    <string name="comics_title">كوميك</string>
+</resources>

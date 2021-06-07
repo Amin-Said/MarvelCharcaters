@@ -10,14 +10,11 @@ import com.amin.marvelcharcaters.utils.extensions.isSuccessAndNotNull
 import com.amin.marvelcharcaters.utils.extensions.letOnFalseOnSuspend
 import com.amin.marvelcharcaters.utils.extensions.letOnTrueOnSuspend
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import javax.inject.Inject
-
-private const val FAKE_DELAY_TIME = 1500L
 
 class DetailsRepository @Inject constructor(
     private val apiClient: ApiClient,
@@ -36,9 +33,6 @@ class DetailsRepository @Inject constructor(
                 val response = (it.getResult() as ResourceResponse)
                 emit(ApiResult.Success(response))
             }.letOnFalseOnSuspend {
-
-                /* fake call */
-               // delay(FAKE_DELAY_TIME)
                 emit(ApiResult.Error(Exception("Unexpected error.")))
             }
         }

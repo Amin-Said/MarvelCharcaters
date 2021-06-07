@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.amin.marvelcharcaters.R
 import com.amin.marvelcharcaters.adapter.CharactersRecyclerAdapter
+import com.amin.marvelcharcaters.adapter.SearchRecyclerAdapter
 import com.amin.marvelcharcaters.databinding.FragmentHomeListBinding
 import com.amin.marvelcharcaters.model.CharacterResult
 import com.amin.marvelcharcaters.utils.Config
@@ -29,7 +30,6 @@ import com.amin.marvelcharcaters.utils.Helper.isOnline
 import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.marvelcharcaters.utils.extensions.toast
 import com.amin.marvelcharcaters.utils.extensions.toastFromResource
-import com.amin.taskdemo.SearchRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -46,7 +46,7 @@ class HomeListFragment : Fragment(),
     lateinit var searchEditText: EditText
 
     private lateinit var mAdapter: CharactersRecyclerAdapter
-    private lateinit var mSearchAdapter: SearchRecyclerAdapter
+    private var mSearchAdapter: SearchRecyclerAdapter? = null
 
     private var isSearchOpened = false
     private var isLoading = false
@@ -120,7 +120,7 @@ class HomeListFragment : Fragment(),
         if (isSearchOpened) {
             changeToolbarOnCancelSearch()
         }
-        if (isOnNetworkError && !isCharacterDataLoaded){
+        if (isOnNetworkError && !isCharacterDataLoaded) {
             requestAllCharactersData(loadingPage)
         }
     }
@@ -164,16 +164,18 @@ class HomeListFragment : Fragment(),
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun listenToNetwork(){
-        val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.registerDefaultNetworkCallback(object  : ConnectivityManager.NetworkCallback() {
+    fun listenToNetwork() {
+        val connectivityManager =
+            requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.registerDefaultNetworkCallback(object :
+            ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                if (isOnNetworkError && !isCharacterDataLoaded){
+                if (isOnNetworkError && !isCharacterDataLoaded) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         val endTime = System.nanoTime()
                         requestAllCharactersData(loadingPage)
-                    },0)
+                    }, 0)
                 }
             }
 
@@ -223,6 +225,14 @@ class HomeListFragment : Fragment(),
         }
     }
 
+    private fun cleanSearchRecyclerView(){
+        binding.searchRV.apply {
+            layoutManager = null
+            mSearchAdapter = null
+            adapter = null
+        }
+    }
+
     // for other views setup
     private fun startLoading() {
         binding.avi.smoothToShow()
@@ -235,9 +245,10 @@ class HomeListFragment : Fragment(),
 
     private fun makeBlurBackGroundOnSearch() {
         try {
-            if (isOnline(requireActivity())){
-                binding.blurBehindLayout.viewBehind = binding.toBlur
-                binding.blurBehindLayout.visibility = View.VISIBLE
+            if (isOnline(requireActivity())) {
+                binding.blurView.visibility = View.VISIBLE
+                binding.searchRV.visibility = View.VISIBLE
+
             }
         } catch (e: Exception) {
             e.stackTrace
@@ -247,8 +258,11 @@ class HomeListFragment : Fragment(),
 
     private fun removeBlurBackGroundOnCancelSearch() {
         try {
-            binding.blurBehindLayout.visibility = View.GONE
-            binding.blurBehindLayout.viewBehind = null
+            binding.blurView.visibility = View.GONE
+            binding.searchRV.visibility = View.GONE
+
+            cleanSearchRecyclerView()
+
         } catch (e: Exception) {
             e.stackTrace
         }
@@ -288,6 +302,9 @@ class HomeListFragment : Fragment(),
         binding.appLogo.visibility = View.VISIBLE
         isSearchOpened = false
         isSearchDataLoaded = false
+
+        cleanSearchRecyclerView()
+
     }
 
     private fun handleSearchQuery() {
@@ -340,7 +357,7 @@ class HomeListFragment : Fragment(),
         }, 500)
     }
 
-    private fun makeDelayAfterToastToShowNext(){
+    private fun makeDelayAfterToastToShowNext() {
         Handler(Looper.getMainLooper()).postDelayed({
             isToastOpened = false
         }, 2000)
@@ -350,8 +367,8 @@ class HomeListFragment : Fragment(),
         isOnNetworkError = true
         binding.avi.smoothToHide()
         val errorMsg = requireActivity().getString(R.string.error_message_Network)
-        if (isCharacterDataLoaded || isSearchDataLoaded ||  isOnSearch) {
-            if (!isToastOpened){
+        if (isCharacterDataLoaded || isSearchDataLoaded || isOnSearch) {
+            if (!isToastOpened) {
                 requireActivity().toast(errorMsg)
                 makeDelayAfterToastToShowNext()
             }
@@ -366,8 +383,8 @@ class HomeListFragment : Fragment(),
     private fun handleRequestError() {
         binding.avi.smoothToHide()
         val errorMsg = requireActivity().getString(R.string.error_message_Request)
-        if (isCharacterDataLoaded || isSearchDataLoaded ||  isOnSearch ) {
-            if (!isToastOpened){
+        if (isCharacterDataLoaded || isSearchDataLoaded || isOnSearch) {
+            if (!isToastOpened) {
                 requireActivity().toast(errorMsg)
                 makeDelayAfterToastToShowNext()
             }
@@ -377,7 +394,6 @@ class HomeListFragment : Fragment(),
             binding.errorMsg.text = errorMsg
         }
     }
-
 
 
     fun requestAllCharactersData(page: Int) {
@@ -391,6 +407,7 @@ class HomeListFragment : Fragment(),
 
     private fun requestSearchData(query: String) {
         if (isOnline(requireActivity())) {
+            initSearchRecyclerView()
             observeSearchResultLiveData(query)
         } else {
             handleErrorNetworkState()
@@ -408,6 +425,7 @@ class HomeListFragment : Fragment(),
         )
 
         lastHitPage = page
+
         viewModel.result.observe(viewLifecycleOwner) {
             when (it) {
                 ApiResult.Loading -> {
@@ -446,8 +464,8 @@ class HomeListFragment : Fragment(),
                 handleErrorNetworkState()
             }
         }
-    }
 
+    }
 
 
     private fun observeSearchResultLiveData(query: String) {
@@ -468,9 +486,8 @@ class HomeListFragment : Fragment(),
                 }
                 is ApiResult.Success -> {
                     isSearchDataLoaded
-                    initSearchRecyclerView()
-                    mSearchAdapter.submitList(it.data.data.results)
-                    mSearchAdapter.filter.filter(query)
+                    mSearchAdapter?.submitList(it.data.data.results)
+                    mSearchAdapter?.filter?.filter(query)
 
 
                 }

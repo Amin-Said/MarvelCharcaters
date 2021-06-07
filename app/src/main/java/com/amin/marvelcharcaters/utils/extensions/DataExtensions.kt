@@ -1,7 +1,5 @@
 package com.amin.marvelcharcaters.utils.extensions
 
-
-
 fun Any?.isNull(): Boolean = this == null
 
 fun Any?.isNotNull(): Boolean = !this.isNull()

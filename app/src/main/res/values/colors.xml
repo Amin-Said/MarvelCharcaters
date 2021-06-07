@@ -30,4 +30,11 @@
     <color name="details_recycler_item_title_color">#141e28</color>
     <color name="details_character_name_color">#ffffff</color>
     <color name="background_back_arrow">#991B1B1B</color>
+
+    <color name="overlay_splash">#BF000000</color>
+    <color name="overlay_Home">#BF000000</color>
+    <color name="overlay_Details">#CE000000</color>
+    <color name="overlay_character_item_name_background">#8000</color>
+
+
 </resources>

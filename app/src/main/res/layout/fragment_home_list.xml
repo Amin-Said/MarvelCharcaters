@@ -7,6 +7,80 @@
     android:background="@color/home_screen_background_color"
     tools:context=".ui.home.HomeListFragment">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toBlur"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBar">
+
+        <TextView
+            android:id="@+id/errorMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/error_message_Network"
+            android:textColor="@color/white"
+            android:textSize="@dimen/error_font_size"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/charactersRV" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/charactersRV"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/space_from_borders"
+            android:layout_marginEnd="@dimen/space_from_borders"
+            android:layout_marginBottom="@dimen/space_from_borders"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/avi"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/avi"
+            style="@style/AVLoadingIndicatorView.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_from_home_loading_bottom"
+            android:visibility="visible"
+            app:indicatorColor="@color/white"
+            app:indicatorName="LineSpinFadeLoaderIndicator"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.github.mmin18.widget.RealtimeBlurView
+        android:id="@+id/blur_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/statusBarView"
+        app:realtimeBlurRadius="@dimen/home_background"
+        app:realtimeOverlayColor="@color/overlay_Home" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/searchRV"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toBlur" />
+
     <View
         android:id="@+id/statusBarView"
         android:layout_width="0dp"
@@ -75,80 +149,5 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/toBlur"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar">
-
-
-        <TextView
-            android:id="@+id/errorMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/error_message_Network"
-            android:textColor="@color/white"
-            android:textSize="@dimen/error_font_size"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/charactersRV" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/charactersRV"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/space_from_borders"
-            android:layout_marginEnd="@dimen/space_from_borders"
-            android:layout_marginBottom="@dimen/space_from_borders"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/avi"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.wang.avi.AVLoadingIndicatorView
-            android:id="@+id/avi"
-            android:layout_marginBottom="@dimen/space_from_home_loading_bottom"
-            style="@style/AVLoadingIndicatorView.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:indicatorColor="@color/white"
-            app:indicatorName="LineSpinFadeLoaderIndicator"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <no.danielzeller.blurbehindlib.BlurBehindLayout
-        android:id="@+id/blurBehindLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:blurRadius="100.0"
-        app:blurTextureScale="0.5"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBar"
-        app:updateMode="onScroll"
-        app:useChildAlphaAsMask="false"
-        app:useTextureView="false">
-        <!-- Add Children -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/searchRV"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </no.danielzeller.blurbehindlib.BlurBehindLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,7 +19,6 @@ import com.amin.marvelcharcaters.model.details.PosterItem
 import com.amin.marvelcharcaters.model.details.ResourceResponse
 import com.amin.marvelcharcaters.utils.Config
 import com.amin.marvelcharcaters.utils.Helper
-import com.amin.marvelcharcaters.utils.data.ApiResult
 import com.amin.marvelcharcaters.utils.data.ApiResult.*
 import com.amin.marvelcharcaters.utils.extensions.getImage
 import com.bumptech.glide.Glide
@@ -165,20 +164,20 @@ class DetailsFragment : Fragment() {
         totalRqeustsCount = comicsSize+storiesSize+eventsSize+seriesSize
 
         for (item in result.comics.items) {
-            observeResourceData(Config.COMIC_TYPE, item.name, item.resourceURI)
+            observeResourceData(requireActivity().getString(R.string.comics_title), item.name, item.resourceURI)
         }
 
         for (item in result.stories.items) {
-            observeResourceData(Config.STORIES_TYPE, item.name, item.resourceURI)
+            observeResourceData(requireActivity().getString(R.string.stories_title), item.name, item.resourceURI)
         }
 
         for (item in result.events.items) {
-            observeResourceData(Config.EVENTS_TYPE, item.name, item.resourceURI)
+            observeResourceData(requireActivity().getString(R.string.events_title), item.name, item.resourceURI)
 
         }
 
         for (item in result.series.items) {
-            observeResourceData(Config.SERIES_TYPE, item.name, item.resourceURI)
+            observeResourceData(requireActivity().getString(R.string.series_title), item.name, item.resourceURI)
 
         }
     }

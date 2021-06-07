@@ -30,8 +30,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/background_image"
-        app:realtimeBlurRadius="20dp"
-        app:realtimeOverlayColor="#CE000000" />
+        app:realtimeBlurRadius="@dimen/details_background"
+        app:realtimeOverlayColor="@color/overlay_Details" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/characterImage"

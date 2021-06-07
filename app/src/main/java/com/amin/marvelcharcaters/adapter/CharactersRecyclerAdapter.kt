@@ -54,8 +54,6 @@ class CharactersRecyclerAdapter(private val interaction: Interaction? = null) :
 
             var image = item.getImage(item.thumbnail.path,item.thumbnail.extension)
 
-            Log.d("DEBUGU",image)
-
             binding.characterTitle.text = item.name
             Glide.with(binding.root.context)
                 .load(image)

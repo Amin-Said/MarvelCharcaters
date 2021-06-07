@@ -35,15 +35,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/character_title"
-            app:realtimeBlurRadius="20dp"
-            app:realtimeOverlayColor="#8000" />
+            app:realtimeBlurRadius="@dimen/character_name_background"
+            app:realtimeOverlayColor="@color/overlay_character_item_name_background" />
 
         <TextView
             android:id="@+id/character_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="TextView"
-            android:padding="@dimen/paddinf_for_character_title_item"
+            android:padding="@dimen/padding_for_character_title_item"
             android:textStyle="bold"
             android:gravity="center"
             android:textColor="@color/details_item_details_color"

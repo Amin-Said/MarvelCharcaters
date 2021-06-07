@@ -9,7 +9,6 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.BackgroundColorSpan
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.core.graphics.ColorUtils

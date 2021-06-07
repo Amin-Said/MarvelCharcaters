@@ -1,4 +1,4 @@
-package com.amin.taskdemo
+package com.amin.marvelcharcaters.adapter
 
 
 import android.view.LayoutInflater
@@ -20,7 +20,7 @@ import java.util.*
 class SearchRecyclerAdapter(private val interaction: Interaction? = null) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),Filterable {
 
-    var searchFilterList = listOf<CharacterResult>()
+    var searchFilterList = mutableListOf<CharacterResult>()
     var textSearch:String = ""
 
 
@@ -64,8 +64,7 @@ class SearchRecyclerAdapter(private val interaction: Interaction? = null) :
     }
 
     fun submitList(list: List<CharacterResult>) {
-        println("DEBUG in submitList")
-        searchFilterList = list
+        searchFilterList = list as MutableList<CharacterResult>
         differ.submitList(list)
     }
 
@@ -122,7 +121,7 @@ class SearchRecyclerAdapter(private val interaction: Interaction? = null) :
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                searchFilterList = results?.values as List<CharacterResult>
+                searchFilterList = (results?.values as List<CharacterResult>).toMutableList()
                 submitList(searchFilterList)
                 notifyDataSetChanged()
             }

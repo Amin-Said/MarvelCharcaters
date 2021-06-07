@@ -43,8 +43,6 @@ class SplashFragment : Fragment() {
             val action =
                 SplashFragmentDirections.actionGoToHome()
             findNavController().navigate(action)
-//            findNavController().popBackStack()
-
         }, 2000)
     }
 }

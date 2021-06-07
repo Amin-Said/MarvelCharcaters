@@ -24,8 +24,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/splash_background"
-        app:realtimeBlurRadius="25dp"
-        app:realtimeOverlayColor="#BF000000" />
+        app:realtimeBlurRadius="@dimen/splash_background"
+        app:realtimeOverlayColor="@color/overlay_splash" />
 
     <ImageView
         android:id="@+id/logo"
